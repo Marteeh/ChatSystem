@@ -47,12 +47,8 @@ public class Client extends Thread {
 		}		
 	}
 
-	public final void sendPacket(Packet packet) {
-		try {
-			output.writeInt(packetFactory.getPacketType(packet));
-			packet.write(output);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public final void sendPacket(Packet packet) throws IOException {
+		output.writeInt(packetFactory.getPacketType(packet));
+		packet.write(output);
 	}
 }

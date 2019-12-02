@@ -12,10 +12,6 @@ public class PacketLogin implements Packet {
 	public String password;
 	public boolean isExternal;
 	
-	public PacketLogin() {
-		
-	}
-	
 	public PacketLogin(String username, String password, boolean isExternal) {
 		this.username = username;
 		this.password = password;

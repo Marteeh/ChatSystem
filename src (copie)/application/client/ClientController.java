@@ -1,16 +1,11 @@
 package application.client;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.UnknownHostException;
 
 import application.PacketLogin;
-import application.PacketSuccess;
-import application.PacketUserConnected;
-import application.User;
 import network.Client;
 import network.NetworkEvent;
-import network.PacketEvent;
 import network.PacketFactory;
 import utils.Event;
 import utils.EventListener;
@@ -25,7 +20,6 @@ public class ClientController implements EventListener {
 	private final PacketFactory packetFactory = new PacketFactory();
 	private Client client;
 	private State state = State.NOT_LOGGED;
-	private final Map<Integer, User> connectedUsers = new HashMap<Integer, User>();
 	
 	ClientController() {
 		registerPackets();
@@ -35,7 +29,6 @@ public class ClientController implements EventListener {
 		try {
 			state = State.LOGGING;
 			client = new Client(eventQueue, packetFactory, SERVER_HOSTNAME, SERVER_PORT);
-			client.start();
 			client.sendPacket(new PacketLogin(e.username, e.password, e.isExternal));
 		} catch (IOException | InterruptedException e1) {
 			state = State.NOT_LOGGED;
@@ -44,9 +37,7 @@ public class ClientController implements EventListener {
 	}
 	
 	private void registerPackets() {
-		packetFactory.registerPacket(PacketLogin.class);
-		packetFactory.registerPacket(PacketSuccess.class);
-		packetFactory.registerPacket(PacketUserConnected.class);
+		
 	}
 
 	@Override
@@ -62,31 +53,18 @@ public class ClientController implements EventListener {
 		if(event instanceof LoginEvent) {
 			LoginEvent e = (LoginEvent) event;
 			if(state.equals(State.NOT_LOGGED)) {
-				login(e);
+				
 			}
 		}
 	}
 	
 	private void onNetworkEvent(NetworkEvent event) {
-		if(event instanceof PacketEvent) {
-			PacketEvent e = (PacketEvent) event;
-			if(e.packet instanceof PacketSuccess) {
-				if(state.equals(State.LOGGING)) {
-					state = State.LOGGED;
-				}
-			} else if(e.packet instanceof PacketUserConnected) {
-				PacketUserConnected p = (PacketUserConnected) e.packet;
-				if(!connectedUsers.containsKey(p.user.id)) {
-					connectedUsers.put(p.user.id, p.user);
-				}
-			}
-		}
+		
 	}
 	
 	private static enum State {
 		NOT_LOGGED,
-		LOGGING,
-		LOGGED;
+		LOGGING;
 	}
 
 }
