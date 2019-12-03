@@ -1,5 +1,6 @@
 package application.client;
 
+import application.client.LoginEvent;
 import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
@@ -10,13 +11,12 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	JPanel panel;
-	JLabel usrLabel, pswrdLabel, message, externalUser;
-	JTextField usrnmTxt;
-	JPasswordField pswrdTxt;
-	JCheckBox extUsr;
-	JButton login, cancel;
-	int isExternal = 0;
+	static JPanel panel;
+	static JLabel usrLabel, mailLabel, message, externalUser;
+	static JTextField usrnmTxt, mailTxt;
+	static JCheckBox extUsr;
+	static JButton login, cancel;
+	static int isExternal = 0;
 	
 	LoginWindow() {
 
@@ -25,10 +25,10 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 		usrLabel.setText("User Name :");
 		usrnmTxt = new JTextField();
 
-		// password input
-		pswrdLabel = new JLabel();
-		pswrdLabel.setText("Password :");
-		pswrdTxt = new JPasswordField();
+		// mail/username input
+		mailLabel = new JLabel();
+		mailLabel.setText("Mail :");
+		mailTxt = new JTextField();
 
 		//External user checkbox
 		externalUser = new JLabel();
@@ -42,8 +42,8 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 
 		panel.add(usrLabel);
 		panel.add(usrnmTxt);
-		panel.add(pswrdLabel);
-		panel.add(pswrdTxt);
+		panel.add(mailLabel);
+		panel.add(mailTxt);
 		panel.add(externalUser);
 		panel.add(extUsr);
 		message = new JLabel();
@@ -61,29 +61,34 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 		setVisible(true);
 	}
 
-	//Listener for external user button
+	public static void incorrectUsername(){
+		message.setText("Username Incorrect, please select another one");
+	}
+
+	//Listener for "external user" button
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 
 		AbstractButton absB = (AbstractButton) e.getSource();
 		ButtonModel bMod = absB.getModel(); 
-		boolean pressed = bMod.isSelected();
+		boolean isPressed = bMod.isSelected();
 
-		if (pressed) { isExternal = 1; }
+		if (isPressed) { isExternal = 1; }
 		else { isExternal = 0; }
-
 	}
 	
+	//Listener for "login" button
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
 		String usrnm = usrnmTxt.getText();
-		char pswrdTab[] = pswrdTxt.getPassword();
-		//use String or char[]??
-		String pswrd = String.valueOf(pswrdTab);
-		eventQueue.add();
+		//LoginEvent evt = new LoginEvent(usrnm, isExternal);
+		login.setEnabled(false);
+		login.setText("Checking username...");
+		//eventQueue.addEventToQueue(evt);
 	}
 
+	//pour test (?)
 	public static void main (String[] args) {
 		new LoginWindow();
 	}
