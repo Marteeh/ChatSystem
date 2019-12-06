@@ -1,25 +1,30 @@
 package application.client;
 
-import application.client.LoginEvent;
+import utils.EventQueue;
+
 import java.awt.event.*;
+import java.io.IOException;
 import java.awt.*;
 import javax.swing.*;
 
 public class LoginWindow extends JFrame implements ActionListener, ItemListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 
-	static JPanel panel;
-	static JLabel usrLabel, mailLabel, pswrdLabel, message, externalUser;
-	static JTextField usrnmTxt, mailTxt;
-	static JCheckBox extUsr;
-	static JPasswordField pswrd;
-	static JButton login, cancel;
-	static int isExternal = 0;
+	private static final long serialVersionUID = 1L;
 	
-	LoginWindow() {
+	private final EventQueue eventQueue;
+
+	JPanel panel;
+	JLabel usrLabel, mailLabel, pswrdLabel, externalUser;
+	JTextField usrnmTxt, mailTxt;
+	JCheckBox extUsr;
+	JPasswordField pswrd;
+	JButton login, cancel;
+	boolean isExternal = false;
+	static JLabel message;
+	
+	LoginWindow(EventQueue eventQueue) {
+		
+		this.eventQueue = eventQueue;
 
 		// username input
 		usrLabel = new JLabel();
@@ -44,7 +49,7 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 		// login button
 		login = new JButton("LOGIN");
 
-		panel = new JPanel(new GridLayout(4, 1));
+		panel = new JPanel(new GridLayout(5, 1));
 
 		panel.add(usrLabel);
 		panel.add(usrnmTxt);
@@ -81,23 +86,28 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 		ButtonModel bMod = absB.getModel(); 
 		boolean isPressed = bMod.isSelected();
 
-		if (isPressed) { isExternal = 1; }
-		else { isExternal = 0; }
+		if (isPressed) { isExternal = true; }
+		else { isExternal = false; }
 	}
 	
 	//Listener for "login" button
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(ActionEvent ae) {
 		
 		String usrnm = usrnmTxt.getText();
-		//LoginEvent evt = new LoginEvent(usrnm, isExternal);
+		String mail = mailTxt.getText();
+		LoginEvent evt = new LoginEvent(usrnm, mail, isExternal);
 		login.setEnabled(false);
 		login.setText("Checking username...");
-		//eventQueue.addEventToQueue(evt);
+		try {
+			eventQueue.addEventToQueue(evt);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
-
-	//pour test (?)
+	/*
 	public static void main (String[] args) {
 		new LoginWindow();
 	}
+	*/
 }

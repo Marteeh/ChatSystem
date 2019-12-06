@@ -9,15 +9,17 @@ import javax.swing.event.ListSelectionListener;
 public class MainWindow extends JFrame implements ActionListener, ListSelectionListener{
 
 	private static final long serialVersionUID = 1L;
-    
-    private final EventQueue eventQueue;
-    private final String currentUser;
+	
+	private EventQueue eventQueue;
+	private String currentUser;
 
     static JPanel panel;
-    static JList liste;
-    static DefaultListModel model;
+    static JList<String> liste;
+    static DefaultListModel<String> model;
     static JButton openChat;
     static JLabel description;
+
+	
 
     /**
      * MainWindow launcher
@@ -30,8 +32,8 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
         this.currentUser = currentUser;
         
         //Connected User list, updates with AddConnectedUser(), RemoveConnectedUser(), or setConnectUser()
-        model = new DefaultListModel();
-        liste = new JList(model);
+        model = new DefaultListModel<String>();
+        liste = new JList<String>(model);
         
         //"Open Chat" Button, unclickable until a connected User is selected
         openChat = new JButton("Chat!");
@@ -80,7 +82,7 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
     public void actionPerformed(ActionEvent e){
         openChat.setText("Ouverture fenetre de chat...");
         openChat.setEnabled(false);
-        //TODO : envoyer ChatEvent sur eventQueue
+        //MessageEvent evt =;
     }
 
     
