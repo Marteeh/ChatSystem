@@ -38,7 +38,6 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
         openChat.setEnabled(false);
 
         panel = new JPanel(new GridLayout(2,1)); 
-
         
         panel.add(liste, BorderLayout.NORTH);
         panel.add(openChat, BorderLayout.SOUTH);
@@ -95,5 +94,6 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
         try{ Thread.sleep(5000);} catch (InterruptedException e){ e.printStackTrace();}
         addConnectedUser("Flo");
     }
-}
 */
+}
+

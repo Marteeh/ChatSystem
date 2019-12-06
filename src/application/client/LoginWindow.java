@@ -12,9 +12,10 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 	private static final long serialVersionUID = 1L;
 
 	static JPanel panel;
-	static JLabel usrLabel, mailLabel, message, externalUser;
+	static JLabel usrLabel, mailLabel, pswrdLabel, message, externalUser;
 	static JTextField usrnmTxt, mailTxt;
 	static JCheckBox extUsr;
+	static JPasswordField pswrd;
 	static JButton login, cancel;
 	static int isExternal = 0;
 	
@@ -25,10 +26,15 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 		usrLabel.setText("User Name :");
 		usrnmTxt = new JTextField();
 
-		// mail/username input
+		// mail input
 		mailLabel = new JLabel();
 		mailLabel.setText("Mail :");
 		mailTxt = new JTextField();
+
+		//password input
+		pswrdLabel = new JLabel();
+		pswrdLabel.setText("Password");
+		pswrd = new JPasswordField();
 
 		//External user checkbox
 		externalUser = new JLabel();
@@ -44,6 +50,8 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 		panel.add(usrnmTxt);
 		panel.add(mailLabel);
 		panel.add(mailTxt);
+		panel.add(pswrdLabel);
+		panel.add(pswrd);
 		panel.add(externalUser);
 		panel.add(extUsr);
 		message = new JLabel();
