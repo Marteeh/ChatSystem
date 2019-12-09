@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.awt.*;
 import javax.swing.*;
 
+import sun.awt.EventQueueDelegate;
+
 public class LoginWindow extends JFrame implements ActionListener, ItemListener {
 
 	private static final long serialVersionUID = 1L;
@@ -32,14 +34,14 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 		usrnmTxt = new JTextField();
 
 		// mail input
-		mailLabel = new JLabel();
+		/* mailLabel = new JLabel();
 		mailLabel.setText("Mail :");
 		mailTxt = new JTextField();
 
 		//password input
 		pswrdLabel = new JLabel();
 		pswrdLabel.setText("Password");
-		pswrd = new JPasswordField();
+		pswrd = new JPasswordField();*/
 
 		//External user checkbox
 		externalUser = new JLabel();
@@ -49,14 +51,14 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 		// login button
 		login = new JButton("LOGIN");
 
-		panel = new JPanel(new GridLayout(5, 1));
+		panel = new JPanel(new GridLayout(3, 1));
 
 		panel.add(usrLabel);
 		panel.add(usrnmTxt);
-		panel.add(mailLabel);
+		/*panel.add(mailLabel);
 		panel.add(mailTxt);
 		panel.add(pswrdLabel);
-		panel.add(pswrd);
+		panel.add(pswrd);*/
 		panel.add(externalUser);
 		panel.add(extUsr);
 		message = new JLabel();
@@ -86,8 +88,7 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 		ButtonModel bMod = absB.getModel(); 
 		boolean isPressed = bMod.isSelected();
 
-		if (isPressed) { isExternal = true; }
-		else { isExternal = false; }
+		isExternal = isPressed;
 	}
 	
 	//Listener for "login" button
@@ -96,9 +97,10 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 		
 		String usrnm = usrnmTxt.getText();
 		String mail = mailTxt.getText();
-		LoginEvent evt = new LoginEvent(usrnm, mail, isExternal);
+		LoginEvent evt = new LoginEvent(usrnm, isExternal);
 		login.setEnabled(false);
 		login.setText("Checking username...");
+
 		try {
 			eventQueue.addEventToQueue(evt);
 		} catch (InterruptedException e) {
@@ -107,7 +109,8 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 	}
 	/*
 	public static void main (String[] args) {
-		new LoginWindow();
-	}
-	*/
+		EventQueue evtq = new EventQueue();
+		new LoginWindow(evtq);
+	}*/
+	
 }
