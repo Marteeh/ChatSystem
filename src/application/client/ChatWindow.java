@@ -18,6 +18,7 @@ public class ChatWindow extends JFrame implements ActionListener {
     //private final EventQueue eventQueue;
     private final User currentUser;
     private final User distantUser;
+    private int msgCount = 0;
 
     static JPanel mainPanel, southPanel;
     static JTextField messageBox;
@@ -104,13 +105,22 @@ public class ChatWindow extends JFrame implements ActionListener {
 
         final String dateEnvoi = shortDateFormat.format(date);
 
-        if (messageBox.getText().length() < 1) {
-            // TODO: Start TCP Session
-        } else {
-            chatBox.append(dateEnvoi + "<" + currentUser.username + ">:  " + messageBox.getText() + "\n");
-            MessageEvent newMessage = new MessageEvent(currentUser, distantUser, date, messageBox.getText());
-            messageBox.setText("");
+        if (msgCount = 0){
+            //Start TCP Session
         }
+
+        //adds the message to the chatbox
+        chatBox.append(dateEnvoi + "<" + currentUser.username + ">:  " + messageBox.getText() + "\n");*
+        msgCount++;
+        //adds the message to the eventqueue
+        MessageEvent msgEvt = new MessageEvent(currentUser, distantUser, date, messageBox.getText());
+        try {
+            eventQueue.addEventToQueue(msgEvt);
+        } catch (InterruptedException ie) {
+            ie.printStackTrace();
+        }
+
+        messageBox.setText("");
         messageBox.requestFocusInWindow();
     }
 
