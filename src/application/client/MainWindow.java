@@ -1,5 +1,7 @@
 package application.client;
 
+import application.User;
+
 import java.awt.event.*;
 import java.awt.*;
 import javax.swing.*;
@@ -10,8 +12,8 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 
 	private static final long serialVersionUID = 1L;
 	
-	private EventQueue eventQueue;
-	private String currentUser;
+	// private EventQueue eventQueue;
+	// private String currentUser;
 
     static JPanel panel;
     static JList<String> liste;
@@ -23,10 +25,10 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 
     /**
      * MainWindow launcher
-     * @param currentUser Name of the current user, used for the window title.
+     * @param currentUser User type representing the current user, used for the window title.
      * @param eventQueue the queue used for receiving and sending events to the controler.
      */
-    MainWindow(String currentUser, EventQueue eventQueue){
+    MainWindow(User currentUser, EventQueue eventQueue){
 
         this.eventQueue = eventQueue;
         this.currentUser = currentUser;
@@ -49,7 +51,7 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
         openChat.addActionListener(this);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setTitle("ChatSystem v9000 [" + currentUser + "] ");
+        setTitle("ChatSystem v9000 [" + currentUser.username + "] ");
         add(panel, BorderLayout.NORTH);
         setSize(300, 600);
         setVisible(true);
@@ -57,19 +59,19 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 
     /**
      * Adds a newly-connected user
-     * @param user the name of the connected user
+     * @param user User type representing the connected user
      */
-    public static void addConnectedUser(String user){
+    public static void addConnectedUser(User user){
         //addElement, removeElement, set
-        model.addElement(user);
+        model.addElement(user.username);
     }
 
     /**
      * Removes a disconnected user
-     * @param user the name of the disconnected user
+     * @param user User type representing the disconnected user
      */
-    public static void removeConnectedUser(String user){
-        model.removeElement(user);
+    public static void removeConnectedUser(User user){
+        model.removeElement(user.username);
     }
     
     @Override
