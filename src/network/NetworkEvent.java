@@ -2,10 +2,6 @@ package network;
 
 import utils.Event;
 
-public abstract class NetworkEvent implements Event {
-	public final Client client;
+public interface NetworkEvent extends Event {
 
-	NetworkEvent(Client client) {
-		this.client = client;
-	}
 }

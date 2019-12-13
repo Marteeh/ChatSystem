@@ -8,17 +8,17 @@ import java.net.UnknownHostException;
 
 import utils.EventQueue;
 
-public class Client extends Thread {
+public class TCPClient extends Thread {
 	private final EventQueue eventQueue;
 	private final PacketFactory packetFactory;
 	private final Socket socket;
 	private final DataOutputStream output;
 
-	public Client(EventQueue eventQueue, PacketFactory packetFactory, String hostname, int port) throws UnknownHostException, IOException, InterruptedException {
+	public TCPClient(EventQueue eventQueue, PacketFactory packetFactory, String hostname, int port) throws UnknownHostException, IOException, InterruptedException {
 		this(eventQueue, packetFactory, new Socket(hostname, port));
 	}
 
-	Client(EventQueue eventQueue, PacketFactory packetFactory, Socket socket) throws UnknownHostException, IOException, InterruptedException {
+	TCPClient(EventQueue eventQueue, PacketFactory packetFactory, Socket socket) throws UnknownHostException, IOException, InterruptedException {
 		this.eventQueue = eventQueue;
 		this.packetFactory = packetFactory;
 		this.socket = socket;
@@ -33,7 +33,7 @@ public class Client extends Thread {
 			while(!Thread.currentThread().isInterrupted()) {
 				Packet packet = packetFactory.createPacket(input.readInt());
 				packet.read(input);
-				eventQueue.addEventToQueue(new PacketEvent(this, packet));
+				eventQueue.addEventToQueue(new TCPPacketEvent(this, packet));
 			}
 			input.close();
 		} catch (IOException e) {

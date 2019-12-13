@@ -1,19 +1,20 @@
 package application.server;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import application.PacketError;
 import application.PacketLogin;
-import application.PacketSuccess;
-import application.PacketUserConnected;
+import application.PacketPseudoAvailabilityCheck;
+import application.PacketSignin;
+import application.PacketUser;
 import application.User;
-import application.client.GUIEvent;
 import database.Database;
 import network.NetworkEvent;
-import network.PacketEvent;
+import network.TCPPacketEvent;
 import network.PacketFactory;
+import network.TCPServer;
 import utils.Console;
 import utils.ConsoleEvent;
 import utils.Event;
@@ -22,7 +23,7 @@ import utils.EventQueue;
 
 public class ServerController implements EventListener {
 
-	private static final int SERVER_PORT = 1234;
+	private static final int SERVER_PORT = 4321;
 	private static final String DATABASE_URL = "com.mysql.jdbc.Driver";
 	private static final String DATABASE_DRIVER = "jdbc:mysql://localhost:3306/sonoo";
 	private static final String DATABASE_USERNAME = "root";
@@ -33,47 +34,51 @@ public class ServerController implements EventListener {
 	private State state;
 	private final Map<Integer, User> connectedUsers = new HashMap<Integer, User>();
 	private final Console console = new Console(eventQueue);
-	private final Database database;
+	private Database database;
+	private TCPServer tcpServer;
+	private int nextAttribuedUserId = 0;
 
 	ServerController() throws ClassNotFoundException, SQLException {
 		registerPackets();
-		database = new Database(DATABASE_URL, DATABASE_DRIVER, DATABASE_USERNAME, DATABASE_PASSWORD);
+		//database = new Database(DATABASE_URL, DATABASE_DRIVER, DATABASE_USERNAME, DATABASE_PASSWORD);
+	}
+
+	public void start() throws IOException {
+		eventQueue.start();
+		tcpServer = new TCPServer(eventQueue, packetFactory, SERVER_PORT);
+		tcpServer.start();
 	}
 
 	private void registerPackets() {
 		packetFactory.registerPacket(PacketLogin.class);
-		packetFactory.registerPacket(PacketSuccess.class);
-		packetFactory.registerPacket(PacketUserConnected.class);
+		packetFactory.registerPacket(PacketSignin.class);
+		packetFactory.registerPacket(PacketPseudoAvailabilityCheck.class);
+		packetFactory.registerPacket(PacketUser.class);
 	}
 
 	@Override
 	public void onEvent(Event event) {
-		if(event instanceof ConsoleEvent) {
+		System.out.println("server event");
+		if (event instanceof ConsoleEvent) {
 			onConsoleEvent((ConsoleEvent) event);
-		} else if(event instanceof NetworkEvent) {
+		} else if (event instanceof NetworkEvent) {
 			onNetworkEvent((NetworkEvent) event);
 		}
 	}
 
 	private void onConsoleEvent(ConsoleEvent event) {
-		if(event.action.equals("exit")) {
+		if (event.action.equals("exit")) {
 			System.exit(0);
 		}
 	}
 
 	private void onNetworkEvent(NetworkEvent event) {
-		if(event instanceof PacketEvent) {
-			PacketEvent e = (PacketEvent) event;
-			if(e.packet instanceof PacketLogin) {
-				PacketLogin p = (PacketLogin) e.packet;
-				RequestUserLogin r = new RequestUserLogin(p.username, p.password);
-				database.executeRequest(r);
-				if(r.success) {
-					event.client.sendPacket(new PacketSuccess());
-					
-				} else {
-					event.client.sendPacket(new PacketError("Bad username or password"));
-				}
+		if (event instanceof TCPPacketEvent) {
+			TCPPacketEvent e = (TCPPacketEvent) event;
+			if (e.packet instanceof PacketSignin) {
+				RequestUserSignin r = new RequestUserSignin();
+				//database.executeRequest(r);
+				e.client.sendPacket(new PacketSignin(nextAttribuedUserId++));
 			}
 		}
 	}

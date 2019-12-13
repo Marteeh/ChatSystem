@@ -6,13 +6,13 @@ import java.net.ServerSocket;
 import utils.EventQueue;
 import utils.EventListener;
 
-public class Server extends Thread {
+public class TCPServer extends Thread {
 	private final EventQueue eventQueue;
 	private final PacketFactory packetFactory;
 	private final ServerSocket serverSocket;
 
-	public Server(EventListener listener, PacketFactory packetFactory, int port) throws IOException {
-		this.eventQueue = new EventQueue(listener);
+	public TCPServer(EventQueue eventQueue, PacketFactory packetFactory, int port) throws IOException {
+		this.eventQueue = eventQueue;
 		this.packetFactory = packetFactory;
 		serverSocket = new ServerSocket(port);
 	}
@@ -21,7 +21,7 @@ public class Server extends Thread {
 	public void run() {
 		try {
 			while(!Thread.currentThread().isInterrupted()) {
-				new Client(eventQueue, packetFactory, serverSocket.accept()).start();
+				new TCPClient(eventQueue, packetFactory, serverSocket.accept()).start();
 				
 			}
 		} catch (IOException e) {

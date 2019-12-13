@@ -4,7 +4,19 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class PacketSuccess implements PacketResponse {
+import network.Packet;
+
+public class PacketSignin implements Packet {
+	
+	public int attribuedUserId;
+	
+	public PacketSignin() {
+
+	}
+	
+	public PacketSignin(int attribuedUserId) {
+		this.attribuedUserId = attribuedUserId;
+	}
 
 	@Override
 	public void read(DataInputStream input) throws IOException {

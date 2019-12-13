@@ -26,7 +26,7 @@ public class PacketUser implements Packet {
 	@Override
 	public void write(DataOutputStream output) throws IOException {
 		output.writeInt(user.id);
-		output.writeUTF(user.username);
+		output.writeUTF(user.pseudo);
 		output.writeBoolean(user.isExternal);
 		output.writeUTF(user.ipAddress);
 	}

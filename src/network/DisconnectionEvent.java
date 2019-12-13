@@ -1,7 +1,9 @@
 package network;
 
-public class DisconnectionEvent extends NetworkEvent {
-	DisconnectionEvent(Client client) {
-		super(client);
+public class DisconnectionEvent implements NetworkEvent {
+	public final TCPClient client;
+	
+	DisconnectionEvent(TCPClient client) {
+		this.client = client;
 	}
 }

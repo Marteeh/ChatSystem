@@ -1,7 +1,9 @@
 package network;
 
-public class ConnectionEvent extends NetworkEvent {
-	ConnectionEvent(Client client) {
-		super(client);
+public class ConnectionEvent implements NetworkEvent {
+	public final TCPClient client;
+	
+	ConnectionEvent(TCPClient client) {
+		this.client = client;
 	}
 }
