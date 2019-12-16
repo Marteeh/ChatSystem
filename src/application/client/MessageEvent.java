@@ -1,7 +1,5 @@
 package application.client;
 
-import java.util.Date;
-
 import application.User;
 
 public class MessageEvent extends GUIEvent {

@@ -83,8 +83,20 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 	
 	/**
 	 * Renames a connected user
+	 * 
+	 * @param user User type representing the user that renamed
 	 */
-
+	public void setConnectedUser(User user) {
+		int index = 0;
+		for (User u : connectedUsers) {
+			if (u == user) {
+				break;
+			}
+			index ++;
+		}
+		model.set(index, user.pseudo);
+	}
+	
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		openChat.setText("Chat!");
@@ -105,12 +117,5 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-    }
-
-	//pour tester
-	  public static void main(String[] args){ 
-		  
-	  }
-		  
-	 
+    }  	 
 }
