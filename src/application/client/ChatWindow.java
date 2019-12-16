@@ -92,7 +92,7 @@ public class ChatWindow extends JFrame implements ActionListener {
     }
 
     public static void addMessageReceived(long timeStamp, String from, String content) {
-    	Date dateRecu = new Date(timeStamp);
+    	Date dateRecu = new Date(timeStamp*1000);
         chatBox.append(dateRecu + "<" + from + ">: " + content + "\n");
     }
 
@@ -108,7 +108,7 @@ public class ChatWindow extends JFrame implements ActionListener {
         chatBox.append(dateEnvoi + "<" + currentUser.pseudo + ">:  " + messageBox.getText() + "\n");
         
         //adds the message to the eventqueue
-        MessageEvent evt = new MessageEvent(currentUser, distantUser, date, messageBox.getText());
+        MessageEvent evt = new MessageEvent(currentUser, distantUser, messageBox.getText());
         try {
             eventQueue.addEventToQueue(evt);
         } catch (InterruptedException ie) {
