@@ -91,6 +91,10 @@ public class ChatWindow extends JFrame implements ActionListener {
         setVisible(true);
     }
 
+    public void showErrorMessage(String message, String title) {
+		JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
+	}
+    
     public static void addMessageReceived(long timeStamp, String from, String content) {
     	Date dateRecu = new Date(timeStamp*1000);
         chatBox.append(dateRecu + "<" + from + ">: " + content + "\n");

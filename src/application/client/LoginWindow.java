@@ -75,7 +75,6 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 
 	public void showErrorMessage(String message, String title) {
 		JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
-
 	}
 
 	// Listener for "external user" button
