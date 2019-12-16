@@ -164,6 +164,9 @@ public class ClientController implements EventListener {
 		currentUser = new User(attribuedUserId, e.pseudo, e.isExternal, udpSocket.getIpAddress());
 		state = State.LOGGED;
 		mainWindow = new MainWindow(currentUser, eventQueue);
+		for(User u : connectedUsers.values()) {
+			mainWindow.addConnectedUser(u);
+		}
 		loginWindow.dispose();
 		print("Succesfully connected");
 		try {
@@ -183,7 +186,9 @@ public class ClientController implements EventListener {
 		if (p.user.id != attribuedUserId) {
 			if (!connectedUsers.containsKey(p.user.id)) {
 				connectedUsers.put(p.user.id, p.user);
-				mainWindow.addConnectedUser(p.user);
+				if(mainWindow != null) {
+					mainWindow.addConnectedUser(p.user);
+				}
 			} else {
 				connectedUsers.get(p.user.id).loggedDuration++;
 			}
@@ -211,7 +216,9 @@ public class ClientController implements EventListener {
 	private void removeUser(User user) {
 		connectedUsers.remove(user.id);
 		print("User " + user.pseudo + " disconnected");
-		mainWindow.removeConnectedUser(user);
+		if(mainWindow != null) {
+			mainWindow.removeConnectedUser(user);
+		}
 	}
 
 	private void registerPackets() {
