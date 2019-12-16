@@ -13,8 +13,6 @@ import java.net.SocketException;
 import utils.EventQueue;
 
 public class UDPSocket extends Thread {
-	
-	public static final String BROADCAST_ADDRESS = "255.255.255.255";
 
 	private DatagramSocket receiverSocket;
 	private final DatagramSocket senderSocket;
