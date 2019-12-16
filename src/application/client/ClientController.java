@@ -240,12 +240,15 @@ public class ClientController implements EventListener {
 			if (state.equals(State.LOGGED)) {
 				TCPClient client;
 				try {
-					client = new TCPClient(eventQueue, packetFactory, e.user.ipAddress, SERVER_PORT);
-					client.start();
-					Session s = new Session(client);
-					opennedSessions.put(e.user.id, s);
+					Session s = opennedSessions.get(e.user.id);
+					if(s == null) {
+						client = new TCPClient(eventQueue, packetFactory, e.user.ipAddress, SERVER_PORT);
+						client.start();
+						s = new Session(client);
+						opennedSessions.put(e.user.id, s);
+						client.sendPacket(new PacketStartSession(currentUser.id));
+					}					
 					s.show();
-					client.sendPacket(new PacketStartSession(currentUser.id));
 				} catch (UnknownHostException e1) {
 					e1.printStackTrace();
 				} catch (IOException e1) {
