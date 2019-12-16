@@ -107,6 +107,7 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 
 	public void enableLoginButton() {
 		login.setEnabled(true);
+		message.setText("LOGIN");
 	}
 
 }
