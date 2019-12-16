@@ -64,6 +64,8 @@ public class ClientController implements EventListener {
 	private final File userIdFile;
 	private User currentUser;
 	private int sessionId = 0;
+	private LoginWindow loginWindow;
+	private MainWindow mainWindow;
 
 	ClientController() throws URISyntaxException, NumberFormatException, IOException {
 		this("", "localhost");
@@ -91,6 +93,7 @@ public class ClientController implements EventListener {
 		// Delai d'écoute nécessaire pour s'assurer de pouvoir détecter les conflits
 		eventQueue.addEventToQueue(new StartEvent(), 1000);
 		loadUserId();
+		loginWindow = new LoginWindow(eventQueue);
 	}
 
 	private void loadUserId() throws NumberFormatException, IOException {
@@ -132,23 +135,36 @@ public class ClientController implements EventListener {
 			}
 		} else {
 			print("Pseudo " + e.pseudo + " already used");
+			loginWindow.showMessage("Le pseudo que vous avez choisi est déja pris, veuillez en choisir un autre.", "Erreur");
 		}
 	}
 
 	private void validateLogin(LoginPhaseFinishedEvent e) {
+		boolean noConflits = true;
 		print("Checking for conflicting login with pseudo " + e.pseudo);
 		for (PacketPseudoAvailabilityCheck p : conflictingLoginRequests) {
-			if (p.pseudo.equals(e.pseudo) && p.discriminant < e.discriminant) {
-				state = State.STARTED;
-				// un utilisateur qui s'est connecté au même moment avec le même pseudo a eu
-				// plus de chance
-				print("Pseudo " + e.pseudo + " already used");
-				return;
+			noConflits = false;
+			if (p.pseudo.equals(e.pseudo)) {
+				if(p.discriminant < e.discriminant) {
+
+					state = State.STARTED;
+					// un utilisateur qui s'est connecté au même moment avec le même pseudo a eu
+					// plus de chance
+					print("Pseudo " + e.pseudo + " already used");
+					loginWindow.showMessage("Un autre utilisateur a essayé pile en même temps que vous de se connecter avec votre pseudo, mais malheureusement le tirage au sort vous à fait perdre. Veuillez choisir un autre pseudo.", "Erreur");
+					loginWindow.enableLoginButton();
+					return;
+				}
 			}
+		}
+		if(!noConflits) {
+			loginWindow.showMessage("Un autre utilisateur a essayé pile en même temps que vous de se connecter avec votre pseudo, mais vous avez gagné au tirage au sort, bravo vous pouvez en profiter pour jouer au loto aujourd'hui vu la chance que vous avez.", "Info");
 		}
 		conflictingLoginRequests.clear();
 		currentUser = new User(attribuedUserId, e.pseudo, e.isExternal, udpSocket.getIpAddress());
 		state = State.LOGGED;
+		mainWindow = new MainWindow(currentUser, eventQueue);
+		loginWindow.dispose();
 		print("Succesfully connected");
 		try {
 			eventQueue.addEventToQueue(new PeriodicLoginEvent(sessionId), 1000);
@@ -167,6 +183,7 @@ public class ClientController implements EventListener {
 		if (p.user.id != attribuedUserId) {
 			if (!connectedUsers.containsKey(p.user.id)) {
 				connectedUsers.put(p.user.id, p.user);
+				mainWindow.addConnectedUser(p.user);
 			} else {
 				connectedUsers.get(p.user.id).loggedDuration++;
 			}
@@ -194,6 +211,7 @@ public class ClientController implements EventListener {
 	private void removeUser(User user) {
 		connectedUsers.remove(user.id);
 		print("User " + user.pseudo + " disconnected");
+		mainWindow.removeConnectedUser(user);
 	}
 
 	private void registerPackets() {
@@ -244,7 +262,7 @@ public class ClientController implements EventListener {
 					if(s == null) {
 						client = new TCPClient(eventQueue, packetFactory, e.user.ipAddress, SERVER_PORT);
 						client.start();
-						s = new Session(client);
+						s = new Session(client, currentUser, e.user);
 						opennedSessions.put(e.user.id, s);
 						client.sendPacket(new PacketStartSession(currentUser.id));
 					}					
@@ -262,7 +280,9 @@ public class ClientController implements EventListener {
 			if (state.equals(State.LOGGED)) {
 				Session s = opennedSessions.get(e.userTo.id);
 				long timestamp = System.currentTimeMillis();
-				s.sendMessage(new Message(e.userFrom.id, e.userTo.id, timestamp, e.content));
+				Message m = new Message(e.userFrom.id, e.userTo.id, timestamp, e.content);
+				s.addMessage(m);
+				s.sendMessage(m);
 			}
 		}
 	}
@@ -272,8 +292,10 @@ public class ClientController implements EventListener {
 			if (state.equals(State.STARTING)) {
 				if (attribuedUserId != -1) {
 					state = State.STARTED;
+					loginWindow.enableLoginButton();
 				} else {
 					// server not responding
+					loginWindow.showMessage("Vous n'avez pas encore d'UID et le serveur ne réponds pas pour vous en donner un", "Erreur");
 				}
 			}
 		} else if (event instanceof LoginPhaseFinishedEvent) {
@@ -317,8 +339,9 @@ public class ClientController implements EventListener {
 				saveUserId();
 			} else if(e.packet instanceof PacketStartSession) {
 				if(state.equals(State.LOGGED)) {
-					Session s = new Session(e.client);
-					opennedSessions.put(((PacketStartSession)e.packet).userId, s);
+					User distantUser = connectedUsers.get(((PacketStartSession)e.packet).userId);
+					Session s = new Session(e.client, currentUser, distantUser);
+					opennedSessions.put(distantUser.id, s);
 				}
 			} else if(e.packet instanceof PacketMessage) {
 				if(state.equals(State.LOGGED)) {
@@ -327,6 +350,7 @@ public class ClientController implements EventListener {
 					if(!s.isVisible()) {
 						s.show();
 					}
+					s.addMessage(p.message);
 				}
 			}
 		} else if (event instanceof UDPPacketEvent) {

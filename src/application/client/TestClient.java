@@ -15,9 +15,9 @@ public class TestClient {
 		}
 		EventQueue eventQueue = controller.getEventQueue();
 		controller.start();
-		Thread.sleep(4000);
+		/*Thread.sleep(4000);
 		eventQueue.addEventToQueue(new LoginEvent("flo", false));
 		Thread.sleep(4000);
-		eventQueue.addEventToQueue(new RenamePseudoEvent("floflo"));
+		eventQueue.addEventToQueue(new RenamePseudoEvent("floflo"));*/
 	}
 }

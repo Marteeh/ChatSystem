@@ -67,7 +67,7 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 	 * @param message
 	 * @param title
 	 */
-	public void showErrorMessage(String message, String title) {
+	public void showMessage(String message, String title) {
 		JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
 	}
 

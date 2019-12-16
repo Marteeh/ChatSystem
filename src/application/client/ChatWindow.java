@@ -24,7 +24,7 @@ public class ChatWindow extends JFrame implements ActionListener {
     static JButton sendMessage;
     static JTextArea chatBox;
 
-    ChatWindow(final User currentUser, final User distantUser/* , EventQueue eventQueue */) {
+    public ChatWindow(final User currentUser, final User distantUser/* , EventQueue eventQueue */) {
 
         this.currentUser = currentUser;
         this.distantUser = distantUser;
@@ -91,11 +91,11 @@ public class ChatWindow extends JFrame implements ActionListener {
         setVisible(true);
     }
 
-    public void showErrorMessage(String message, String title) {
+    public void showMessage(String message, String title) {
 		JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
 	}
     
-    public static void addMessageReceived(long timeStamp, String from, String content) {
+    public void addMessageReceived(long timeStamp, String from, String content) {
     	Date dateRecu = new Date(timeStamp*1000);
         chatBox.append(dateRecu + "<" + from + ">: " + content + "\n");
     }
@@ -121,12 +121,6 @@ public class ChatWindow extends JFrame implements ActionListener {
 
         messageBox.setText("");
         messageBox.requestFocusInWindow();
-    }
-
-    public static void main(final String args[]) {
-        final User Marton = new User(0, "Marton", false, "192.168.0.1");
-        final User Flo = new User(1, "Flo", false, "192.168.0.2");
-        new ChatWindow(Marton, Flo);
     }
 
 }

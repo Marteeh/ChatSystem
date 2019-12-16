@@ -73,7 +73,7 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 		setVisible(true);
 	}
 
-	public void showErrorMessage(String message, String title) {
+	public void showMessage(String message, String title) {
 		JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
 	}
 
@@ -107,11 +107,6 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 
 	public void enableLoginButton() {
 		login.setEnabled(true);
-	}
-
-	public static void main(String[] args) {
-		EventQueue evtq = new EventQueue(null);
-		new LoginWindow(evtq);
 	}
 
 }
