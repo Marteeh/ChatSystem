@@ -9,7 +9,7 @@ import javax.swing.*;
 public class LoginWindow extends JFrame implements ActionListener, ItemListener {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private final EventQueue eventQueue;
 
 	JPanel panel;
@@ -20,9 +20,9 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 	JButton login, cancel;
 	boolean isExternal = false;
 	static JLabel message;
-	
+
 	LoginWindow(EventQueue eventQueue) {
-		
+
 		this.eventQueue = eventQueue;
 
 		// username input
@@ -31,16 +31,15 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 		usrnmTxt = new JTextField();
 
 		// mail input
-		/* mailLabel = new JLabel();
-		mailLabel.setText("Mail :");
-		mailTxt = new JTextField();
+		/*
+		 * mailLabel = new JLabel(); mailLabel.setText("Mail :"); mailTxt = new
+		 * JTextField();
+		 * 
+		 * //password input pswrdLabel = new JLabel(); pswrdLabel.setText("Password");
+		 * pswrd = new JPasswordField();
+		 */
 
-		//password input
-		pswrdLabel = new JLabel();
-		pswrdLabel.setText("Password");
-		pswrd = new JPasswordField();*/
-
-		//External user checkbox
+		// External user checkbox
 		externalUser = new JLabel();
 		externalUser.setText("I'm an external user");
 		extUsr = new JCheckBox();
@@ -53,17 +52,17 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 
 		panel.add(usrLabel);
 		panel.add(usrnmTxt);
-		/*panel.add(mailLabel);
-		panel.add(mailTxt);
-		panel.add(pswrdLabel);
-		panel.add(pswrd);*/
+		/*
+		 * panel.add(mailLabel); panel.add(mailTxt); panel.add(pswrdLabel);
+		 * panel.add(pswrd);
+		 */
 		panel.add(externalUser);
 		panel.add(extUsr);
 		message = new JLabel();
 		panel.add(message);
 		panel.add(login);
 
-		//Adding actionlisteners
+		// Adding actionlisteners
 		extUsr.addItemListener(this);
 		login.addActionListener(this);
 
@@ -74,27 +73,28 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 		setVisible(true);
 	}
 
-	public static void incorrectUsername(){
-		message.setText("Username Incorrect, please select another one");
+	public void showErrorMessage(String message, String title) {
+		JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
+
 	}
 
-	//Listener for "external user" button
+	// Listener for "external user" button
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 
 		AbstractButton absB = (AbstractButton) e.getSource();
-		ButtonModel bMod = absB.getModel(); 
+		ButtonModel bMod = absB.getModel();
 		boolean isPressed = bMod.isSelected();
 
 		isExternal = isPressed;
 	}
-	
-	//Listener for "login" button
+
+	// Listener for "login" button
 	@Override
 	public void actionPerformed(ActionEvent ae) {
-		
+
 		String usrnm = usrnmTxt.getText();
-		//String mail = mailTxt.getText();
+		// String mail = mailTxt.getText();
 		LoginEvent evt = new LoginEvent(usrnm, isExternal);
 		login.setEnabled(false);
 		login.setText("Checking username...");
@@ -105,14 +105,14 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void enableLoginButton() {
 		login.setEnabled(true);
 	}
-	
-	public static void main (String[] args) {
+
+	public static void main(String[] args) {
 		EventQueue evtq = new EventQueue(null);
 		new LoginWindow(evtq);
 	}
-	
+
 }

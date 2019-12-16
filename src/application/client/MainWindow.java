@@ -60,6 +60,16 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 		setSize(300, 600);
 		setVisible(true);
 	}
+	
+	/** 
+	 * Shows an error message in a pop-up window 
+	 * 
+	 * @param message
+	 * @param title
+	 */
+	public void showErrorMessage(String message, String title) {
+		JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
+	}
 
 	/**
 	 * Adds a newly-connected user
