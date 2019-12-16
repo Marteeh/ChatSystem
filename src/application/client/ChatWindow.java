@@ -1,9 +1,9 @@
 package application.client;
 
 import application.User;
+import utils.EventQueue;
 
 import java.awt.event.*;
-import java.io.IOException;
 import java.awt.*;
 import javax.swing.*;
 import java.text.DateFormat;
@@ -15,10 +15,9 @@ public class ChatWindow extends JFrame implements ActionListener {
 
     private static final long serialVersionUID = 1L;
 
-    //private final EventQueue eventQueue;
+	private EventQueue eventQueue;
     private final User currentUser;
     private final User distantUser;
-    private int msgCount = 0;
 
     static JPanel mainPanel, southPanel;
     static JTextField messageBox;
@@ -86,15 +85,15 @@ public class ChatWindow extends JFrame implements ActionListener {
                 }
             }
         });
-        setTitle("CS v9000 - Chatting with " + distantUser.username);
+        setTitle("CS v9000 - Chatting with " + distantUser.pseudo);
         add(mainPanel);
         setSize(900, 500);
         setVisible(true);
     }
 
-    public static void addMessageReceived(final User user) {
-
-        chatBox.append("<" + user.username + ">: " + /* message.content + */ "\n");
+    public static void addMessageReceived(long timeStamp, String from, String content) {
+    	Date dateRecu = new Date(timeStamp);
+        chatBox.append(dateRecu + "<" + from + ">: " + content + "\n");
     }
 
     public void actionPerformed(final ActionEvent e) {
@@ -105,17 +104,13 @@ public class ChatWindow extends JFrame implements ActionListener {
 
         final String dateEnvoi = shortDateFormat.format(date);
 
-        if (msgCount = 0){
-            //Start TCP Session
-        }
-
         //adds the message to the chatbox
-        chatBox.append(dateEnvoi + "<" + currentUser.username + ">:  " + messageBox.getText() + "\n");*
-        msgCount++;
+        chatBox.append(dateEnvoi + "<" + currentUser.pseudo + ">:  " + messageBox.getText() + "\n");
+        
         //adds the message to the eventqueue
-        MessageEvent msgEvt = new MessageEvent(currentUser, distantUser, date, messageBox.getText());
+        MessageEvent evt = new MessageEvent(currentUser, distantUser, date, messageBox.getText());
         try {
-            eventQueue.addEventToQueue(msgEvt);
+            eventQueue.addEventToQueue(evt);
         } catch (InterruptedException ie) {
             ie.printStackTrace();
         }
