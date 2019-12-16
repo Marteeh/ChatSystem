@@ -23,7 +23,7 @@ public class TCPClient extends Thread {
 		this.packetFactory = packetFactory;
 		this.socket = socket;
 		output = new DataOutputStream(socket.getOutputStream());
-		eventQueue.addEventToQueue(new ConnectionEvent(this));
+		eventQueue.addEventToQueue(new TCPConnectionEvent(this));
 	}
 
 	@Override
