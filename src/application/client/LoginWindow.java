@@ -3,11 +3,8 @@ package application.client;
 import utils.EventQueue;
 
 import java.awt.event.*;
-import java.io.IOException;
 import java.awt.*;
 import javax.swing.*;
-
-import sun.awt.EventQueueDelegate;
 
 public class LoginWindow extends JFrame implements ActionListener, ItemListener {
 
@@ -50,6 +47,7 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 
 		// login button
 		login = new JButton("LOGIN");
+		login.setEnabled(false);
 
 		panel = new JPanel(new GridLayout(3, 1));
 
@@ -96,7 +94,7 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 	public void actionPerformed(ActionEvent ae) {
 		
 		String usrnm = usrnmTxt.getText();
-		String mail = mailTxt.getText();
+		//String mail = mailTxt.getText();
 		LoginEvent evt = new LoginEvent(usrnm, isExternal);
 		login.setEnabled(false);
 		login.setText("Checking username...");
@@ -107,10 +105,14 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 			e.printStackTrace();
 		}
 	}
-	/*
+	
+	public void enableLoginButton() {
+		login.setEnabled(true);
+	}
+	
 	public static void main (String[] args) {
-		EventQueue evtq = new EventQueue();
+		EventQueue evtq = new EventQueue(null);
 		new LoginWindow(evtq);
-	}*/
+	}
 	
 }
