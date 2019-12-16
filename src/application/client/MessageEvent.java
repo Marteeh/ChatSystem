@@ -10,7 +10,7 @@ public class MessageEvent extends GUIEvent {
 	public final User userTo;
 	public final String content;
 
-	MessageEvent(User userFrom, User userTo, Date sendDate, String content) {
+	MessageEvent(User userFrom, User userTo, String content) {
 		this.userFrom = userFrom;
 		this.userTo = userTo;
 		this.content = content;

@@ -1,6 +1,7 @@
 package application.client;
 
 import application.User;
+import utils.EventQueue;
 
 import java.awt.event.*;
 import java.awt.*;
@@ -79,6 +80,10 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 		model.removeElement(user.pseudo);
 		connectedUsers.remove(user);
 	}
+	
+	/**
+	 * Renames a connected user
+	 */
 
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
@@ -102,11 +107,10 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 		}
     }
 
-//pour tester
-	/*
-	 * public static void main(String[] args){ new MainWindow("poupidou");
-	 * addConnectedUser("Saucier"); addConnectedUser("SavaneBrossard");
-	 * addConnectedUser("Marton"); try{ Thread.sleep(5000);} catch
-	 * (InterruptedException e){ e.printStackTrace();} addConnectedUser("Flo"); }
-	 */
+	//pour tester
+	  public static void main(String[] args){ 
+		  
+	  }
+		  
+	 
 }
