@@ -45,8 +45,8 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 		// "Open Chat" Button, unclickable until a connected User is selected
 		openChat = new JButton("Chat!");
 		openChat.setEnabled(false);
-		
-		//Rename Button
+
+		// Rename Button
 		renameButton = new JButton("Rename");
 
 		panel = new JPanel(new GridLayout(2, 1));
@@ -68,22 +68,24 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 
 				String popupButtons[] = { "Confirm Rename", "Cancel" };
 
-				int changed = JOptionPane.showOptionDialog(panel, renamePopup, "Change Username",
-						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, popupButtons, null);
+				int changed = JOptionPane.showOptionDialog(panel, renamePopup, "Change Username",JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, popupButtons, null);
 
 				if (changed == JOptionPane.YES_OPTION) {
 					String newUsername = renameField.getText();
 					if (newUsername != currentUser.pseudo) {
 						RenamePseudoEvent evt = new RenamePseudoEvent(currentUser.pseudo);
-						
-						  try { eventQueue.addEventToQueue(evt); } catch (InterruptedException e) {
-						  e.printStackTrace(); }
-						 
+
+						try {
+							eventQueue.addEventToQueue(evt);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+
 					}
 				}
 			}
 		});
-		
+
 		liste.addListSelectionListener(this);
 		openChat.addActionListener(this);
 
