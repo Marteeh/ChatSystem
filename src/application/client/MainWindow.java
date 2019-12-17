@@ -48,18 +48,22 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 
 		// Rename Button
 		renameButton = new JButton("Rename");
+		popupMessage = new JLabel("");
 
 		panel = new JPanel(new GridLayout(2, 1));
 
 		panel.add(renameButton, BorderLayout.NORTH);
 		panel.add(liste, BorderLayout.CENTER);
 		panel.add(openChat, BorderLayout.SOUTH);
+		panel.add(popupMessage);
 
 		// Rename popup
-		renamePopup = new JPanel();
+		renamePopup = new JPanel(new GridLayout(2,1));
 		renameField = new JTextField(14);
+		
 		renamePopup.add(new JLabel("New Username : "));
 		renamePopup.add(renameField);
+		
 
 		// Adding actionListeners
 		renameButton.addActionListener(new ActionListener() {
@@ -68,11 +72,16 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 
 				String popupButtons[] = { "Confirm Rename", "Cancel" };
 
-				int changed = JOptionPane.showOptionDialog(panel, renamePopup, "Change Username",JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, popupButtons, null);
+				int changed = JOptionPane.showOptionDialog(panel, renamePopup, "Change Username",
+						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, popupButtons, null);
 
 				if (changed == JOptionPane.YES_OPTION) {
+					System.out.println("changed ok");
 					String newUsername = renameField.getText();
-					if (newUsername != currentUser.pseudo) {
+					
+					if (!newUsername.equals(currentUser.pseudo)) {
+						System.out.println(newUsername);
+						System.out.println(currentUser.pseudo);
 						RenamePseudoEvent evt = new RenamePseudoEvent(currentUser.pseudo);
 
 						try {
@@ -81,6 +90,8 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 							e.printStackTrace();
 						}
 
+					} else {
+						showMessage("This is your current username, please select a new one.", "Error");
 					}
 				}
 			}
@@ -152,7 +163,6 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 	public void actionPerformed(ActionEvent ae) {
 
 		User distantUser = connectedUsers.get(liste.getSelectedIndex());
-		;
 		openChat.setText("Ouverture fenetre de chat...");
 		openChat.setEnabled(false);
 
@@ -165,10 +175,10 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 		}
 	}
 
-//	public static void main(String args[]) {
-//		User Marton = new User(5, "Marton", false, "192.168.0.3");
-//		EventQueue evtq = new EventQueue(null);
-//		new MainWindow(Marton, evtq);
-//
-//	}
+	public static void main(String args[]) {
+		User Marton = new User(5, "Marton", false, "192.168.0.3");
+		EventQueue evtq = new EventQueue(null);
+		new MainWindow(Marton, evtq);
+
+	}
 }
