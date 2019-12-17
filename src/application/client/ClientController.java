@@ -138,7 +138,8 @@ public class ClientController implements EventListener {
 			}
 		} else {
 			print("Pseudo " + e.pseudo + " already used");
-			loginWindow.showMessage("Le pseudo que vous avez choisi est déja pris, veuillez en choisir un autre.", "Erreur");
+			loginWindow.showMessage("Le pseudo que vous avez choisi est déja pris, veuillez en choisir un autre.",
+					"Erreur");
 			loginWindow.enableLoginButton();
 		}
 	}
@@ -147,10 +148,11 @@ public class ClientController implements EventListener {
 		print("Checking for conflicting login with pseudo " + e.pseudo);
 		for (PacketPseudoAvailabilityCheck p : conflictingLoginRequests) {
 			if (p.pseudo.equals(e.pseudo)) {
-				if(p.discriminant < e.discriminant) {
+				if (p.discriminant < e.discriminant) {
 					state = State.STARTED;
 					print("Pseudo " + e.pseudo + " already used");
-					loginWindow.showMessage("Le pseudo que vous avez choisi est déja pris, veuillez en choisir un autre.", "Erreur");
+					loginWindow.showMessage(
+							"Le pseudo que vous avez choisi est déja pris, veuillez en choisir un autre.", "Erreur");
 					loginWindow.enableLoginButton();
 					return;
 				}
@@ -160,7 +162,7 @@ public class ClientController implements EventListener {
 		currentUser = new User(attribuedUserId, e.pseudo, e.isExternal, localAddress);
 		state = State.LOGGED;
 		mainWindow = new MainWindow(currentUser, eventQueue);
-		for(User u : connectedUsers.values()) {
+		for (User u : connectedUsers.values()) {
 			mainWindow.addConnectedUser(u);
 		}
 		loginWindow.dispose();
@@ -176,13 +178,17 @@ public class ClientController implements EventListener {
 		print("Disconnect");
 		state = State.STARTED;
 		sessionId++;
+		if(mainWindow != null) {
+			mainWindow.dispose();
+			mainWindow = null;
+		}
 	}
 
 	private void userConnected(PacketUser p) {
 		if (p.user.id != attribuedUserId) {
 			if (!connectedUsers.containsKey(p.user.id)) {
 				connectedUsers.put(p.user.id, p.user);
-				if(mainWindow != null) {
+				if (mainWindow != null) {
 					mainWindow.unselectUser();
 					mainWindow.addConnectedUser(p.user);
 				}
@@ -213,7 +219,7 @@ public class ClientController implements EventListener {
 	private void removeUser(User user) {
 		connectedUsers.remove(user.id);
 		print("User " + user.pseudo + " disconnected");
-		if(mainWindow != null) {
+		if (mainWindow != null) {
 			mainWindow.unselectUser();
 			mainWindow.removeConnectedUser(user);
 		}
@@ -249,6 +255,7 @@ public class ClientController implements EventListener {
 		} else if (event instanceof DisconnectEvent) {
 			if (state.equals(State.LOGGED)) {
 				disconnect();
+				loginWindow = new LoginWindow(eventQueue);
 			}
 		} else if (event instanceof RenamePseudoEvent) {
 			RenamePseudoEvent e = (RenamePseudoEvent) event;
@@ -266,13 +273,13 @@ public class ClientController implements EventListener {
 				TCPClient client;
 				try {
 					Session s = opennedSessions.get(e.user.id);
-					if(s == null) {
+					if (s == null) {
 						client = new TCPClient(eventQueue, packetFactory, e.user.ipAddress, SERVER_PORT);
 						client.start();
 						s = new Session(client, currentUser, e.user, eventQueue);
 						opennedSessions.put(e.user.id, s);
 						client.sendPacket(new PacketStartSession(currentUser.id));
-					}					
+					}
 					s.show();
 					mainWindow.unselectUser();
 				} catch (UnknownHostException e1) {
@@ -292,14 +299,14 @@ public class ClientController implements EventListener {
 				s.addMessage(m);
 				s.sendMessage(m);
 			}
-		} else if(event instanceof SessionCloseEvent) {
+		} else if (event instanceof SessionCloseEvent) {
 			SessionCloseEvent e = (SessionCloseEvent) event;
 			Session s = opennedSessions.get(e.user.id);
 			s.hide();
 			mainWindow.unselectUser();
-		} else if(event instanceof UserSelectionChangedEvent) {
-			UserSelectionChangedEvent e = (UserSelectionChangedEvent)event;
-			if(e.user == null) {
+		} else if (event instanceof UserSelectionChangedEvent) {
+			UserSelectionChangedEvent e = (UserSelectionChangedEvent) event;
+			if (e.user == null) {
 				mainWindow.setOpenChatEnabled(false);
 			} else {
 				Session s = opennedSessions.get(e.user.id);
@@ -316,7 +323,9 @@ public class ClientController implements EventListener {
 					loginWindow.enableLoginButton();
 				} else {
 					// server not responding
-					loginWindow.showMessage("Vous n'avez pas encore d'UID et le serveur ne réponds pas pour vous en donner un", "Erreur");
+					loginWindow.showMessage(
+							"Vous n'avez pas encore d'UID et le serveur ne réponds pas pour vous en donner un",
+							"Erreur");
 				}
 			}
 		} else if (event instanceof LoginPhaseFinishedEvent) {
@@ -335,14 +344,12 @@ public class ClientController implements EventListener {
 			// A chaque déconnexion le sessionId change pour éviter de traiter les
 			// PeriodicLoginEvent d'une autre session
 			// dans le cas ou on se reconnecte rapidement
-			if (state.equals(State.LOGGED)) {
-				DisconnectUserEvent e = (DisconnectUserEvent) event;
-				User u = connectedUsers.get(e.userId);
-				if (u != null && u.loggedDuration == e.loggedDuration) {
-					// Cet utilisateur ne s'est pas manifesté depuis trop longtemps donc on le
-					// considère déconnecté
-					removeUser(u);
-				}
+			DisconnectUserEvent e = (DisconnectUserEvent) event;
+			User u = connectedUsers.get(e.userId);
+			if (u != null && u.loggedDuration == e.loggedDuration) {
+				// Cet utilisateur ne s'est pas manifesté depuis trop longtemps donc on le
+				// considère déconnecté
+				removeUser(u);
 			}
 		}
 	}
@@ -350,25 +357,25 @@ public class ClientController implements EventListener {
 	private void onNetworkEvent(NetworkEvent event) {
 		if (event instanceof TCPConnectionEvent) {
 			TCPConnectionEvent e = (TCPConnectionEvent) event;
-			if(e.client != tcpClient) {
-				
+			if (e.client != tcpClient) {
+
 			}
 		} else if (event instanceof TCPPacketEvent) {
 			TCPPacketEvent e = (TCPPacketEvent) event;
 			if (e.packet instanceof PacketSignin) {
 				attribuedUserId = ((PacketSignin) e.packet).attribuedUserId;
 				saveUserId();
-			} else if(e.packet instanceof PacketStartSession) {
-				if(state.equals(State.LOGGED)) {
-					User distantUser = connectedUsers.get(((PacketStartSession)e.packet).userId);
+			} else if (e.packet instanceof PacketStartSession) {
+				if (state.equals(State.LOGGED)) {
+					User distantUser = connectedUsers.get(((PacketStartSession) e.packet).userId);
 					Session s = new Session(e.client, currentUser, distantUser, eventQueue);
 					opennedSessions.put(distantUser.id, s);
 				}
-			} else if(e.packet instanceof PacketMessage) {
-				if(state.equals(State.LOGGED)) {
-					PacketMessage p = (PacketMessage)e.packet;
+			} else if (e.packet instanceof PacketMessage) {
+				if (state.equals(State.LOGGED)) {
+					PacketMessage p = (PacketMessage) e.packet;
 					Session s = opennedSessions.get(p.message.from);
-					if(!s.isVisible()) {
+					if (!s.isVisible()) {
 						mainWindow.unselectUser();
 						s.show();
 					}
@@ -386,12 +393,12 @@ public class ClientController implements EventListener {
 					conflictingLoginRequests.add(p);
 				}
 			}
-		} 
+		}
 	}
-	
+
 	private Session getSession(TCPClient client) {
-		for(Session s : opennedSessions.values()) {
-			if(s.tcpClient == client) {
+		for (Session s : opennedSessions.values()) {
+			if (s.tcpClient == client) {
 				return s;
 			}
 		}

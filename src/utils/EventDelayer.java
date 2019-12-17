@@ -2,12 +2,12 @@ package utils;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.locks.ReentrantLock;
 
 class EventDelayer extends Thread {
 
 	private final BlockingQueue<DelayedEvent> queue = new PriorityBlockingQueue<DelayedEvent>();
 	private final EventQueue eventQueue;
-	private volatile boolean sleeping = false;
 
 	EventDelayer(EventQueue eventQueue) {
 		this.eventQueue = eventQueue;
@@ -20,18 +20,17 @@ class EventDelayer extends Thread {
 				DelayedEvent event = queue.take();
 				int delay = (int) (event.fireTime - System.currentTimeMillis());
 				if (delay > 0) {
-					sleeping = true;
 					try {
 						Thread.sleep(delay);
+						synchronized (this) {
+							eventQueue.addEventToQueue(event.event);
+						}
 					} catch (InterruptedException e) {
-						sleeping = false;
 						Thread.interrupted();
 						queue.put(event);
 						continue;
 					}
-					sleeping = false;
 				}
-				eventQueue.addEventToQueue(event.event);
 
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -39,10 +38,10 @@ class EventDelayer extends Thread {
 		}
 	}
 
-	public void addEventToQueue(DelayedEvent event) throws InterruptedException {
-		if (sleeping) {
+	public synchronized void addEventToQueue(DelayedEvent event) throws InterruptedException {
+		queue.put(event);
+		if (this.getState().equals(Thread.State.TIMED_WAITING)) {
 			this.interrupt();
 		}
-		queue.put(event);
 	}
 }

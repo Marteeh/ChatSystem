@@ -17,13 +17,14 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 	private static final long serialVersionUID = 1L;
 
 	private EventQueue eventQueue;
-	JPanel panel;
+	JPanel panel, renamePopup;
 	JList<String> liste;
 	DefaultListModel<String> model;
-	JButton openChat;
-	JLabel description;
+	JButton openChat, renameButton, confRenameButton;
+	JLabel description, newUsername, popupMessage;
+	JTextField renameField;
 	List<User> connectedUsers = new ArrayList<User>();
-	
+
 	/**
 	 * MainWindow launcher
 	 * 
@@ -45,24 +46,75 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 		openChat = new JButton("Chat!");
 		openChat.setEnabled(false);
 
+		// Rename Button
+		renameButton = new JButton("Rename");
+		popupMessage = new JLabel("");
+
 		panel = new JPanel(new GridLayout(2, 1));
 
-		panel.add(liste, BorderLayout.NORTH);
+		panel.add(renameButton, BorderLayout.NORTH);
+		panel.add(liste, BorderLayout.CENTER);
 		panel.add(openChat, BorderLayout.SOUTH);
+		panel.add(popupMessage);
+
+		// Rename popup
+		renamePopup = new JPanel(new GridLayout(2,1));
+		renameField = new JTextField(14);
+		
+		renamePopup.add(new JLabel("New Username : "));
+		renamePopup.add(renameField);
+		
 
 		// Adding actionListeners
+		renameButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+
+				String popupButtons[] = { "Confirm Rename", "Cancel" };
+
+				int changed = JOptionPane.showOptionDialog(panel, renamePopup, "Change Username",
+						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, popupButtons, null);
+
+				if (changed == JOptionPane.YES_OPTION) {
+					String newUsername = renameField.getText();
+					
+					if (!newUsername.equals(currentUser.pseudo)) {
+						RenamePseudoEvent evt = new RenamePseudoEvent(newUsername);
+
+						try {
+							eventQueue.addEventToQueue(evt);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+
+					} else {
+						showMessage("This is your current username, please select a new one.", "Error");
+					}
+				}
+			}
+		});
+
 		liste.addListSelectionListener(this);
 		openChat.addActionListener(this);
 
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("ChatSystem v9000 [" + currentUser.pseudo + "] ");
 		add(panel, BorderLayout.NORTH);
 		setSize(300, 600);
 		setVisible(true);
+		addWindowListener(new WindowAdapter() {
+			@Override
+            public void windowClosing(final WindowEvent we) {
+				try {
+					eventQueue.addEventToQueue(new DisconnectEvent());
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
-	
-	/** 
-	 * Shows an error message in a pop-up window 
+
+	/**
+	 * Shows an error message in a pop-up window
 	 * 
 	 * @param message
 	 * @param title
@@ -90,7 +142,7 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 		model.removeElement(user.pseudo);
 		connectedUsers.remove(user);
 	}
-	
+
 	/**
 	 * Renames a connected user
 	 * 
@@ -102,11 +154,11 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 			if (u == user) {
 				break;
 			}
-			index ++;
+			index++;
 		}
 		model.set(index, user.pseudo);
 	}
-	
+
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		try {

@@ -105,7 +105,7 @@ public class ChatWindow extends JFrame implements ActionListener {
 		JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
 	}
     
-    public void addMessageReceived(long timeStamp, String from, String content) {
+    public void addMessage(long timeStamp, String from, String content) {
     	Date dateRecu = new Date(timeStamp);
     	final DateFormat shortDateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
         final String dateEnvoi = shortDateFormat.format(dateRecu);

@@ -56,7 +56,7 @@ public class Session {
 			messages.add(m);
 		}
 		String pseudo = m.from == userFrom.id ? userFrom.pseudo : userTo.pseudo;
-		chatWindow.addMessageReceived(m.timestamp, pseudo, m.content);
+		chatWindow.addMessage(m.timestamp, pseudo, m.content);
 	}
 	
 }
