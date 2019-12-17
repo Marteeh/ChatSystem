@@ -17,13 +17,14 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 	private static final long serialVersionUID = 1L;
 
 	private EventQueue eventQueue;
-	JPanel panel;
+	JPanel panel, renamePopup;
 	JList<String> liste;
 	DefaultListModel<String> model;
-	JButton openChat;
-	JLabel description;
+	JButton openChat, renameButton, confRenameButton;
+	JLabel description, newUsername, popupMessage;
+	JTextField renameField;
 	List<User> connectedUsers = new ArrayList<User>();
-	
+
 	/**
 	 * MainWindow launcher
 	 * 
@@ -44,13 +45,45 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 		// "Open Chat" Button, unclickable until a connected User is selected
 		openChat = new JButton("Chat!");
 		openChat.setEnabled(false);
+		
+		//Rename Button
+		renameButton = new JButton("Rename");
 
 		panel = new JPanel(new GridLayout(2, 1));
 
-		panel.add(liste, BorderLayout.NORTH);
+		panel.add(renameButton, BorderLayout.NORTH);
+		panel.add(liste, BorderLayout.CENTER);
 		panel.add(openChat, BorderLayout.SOUTH);
 
+		// Rename popup
+		renamePopup = new JPanel();
+		renameField = new JTextField(14);
+		renamePopup.add(new JLabel("New Username : "));
+		renamePopup.add(renameField);
+
 		// Adding actionListeners
+		renameButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent ae) {
+
+				String popupButtons[] = { "Confirm Rename", "Cancel" };
+
+				int changed = JOptionPane.showOptionDialog(panel, renamePopup, "Change Username",
+						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, popupButtons, null);
+
+				if (changed == JOptionPane.YES_OPTION) {
+					String newUsername = renameField.getText();
+					if (newUsername != currentUser.pseudo) {
+						RenamePseudoEvent evt = new RenamePseudoEvent(currentUser.pseudo);
+						
+						  try { eventQueue.addEventToQueue(evt); } catch (InterruptedException e) {
+						  e.printStackTrace(); }
+						 
+					}
+				}
+			}
+		});
+		
 		liste.addListSelectionListener(this);
 		openChat.addActionListener(this);
 
@@ -60,9 +93,9 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 		setSize(300, 600);
 		setVisible(true);
 	}
-	
-	/** 
-	 * Shows an error message in a pop-up window 
+
+	/**
+	 * Shows an error message in a pop-up window
 	 * 
 	 * @param message
 	 * @param title
@@ -90,7 +123,7 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 		model.removeElement(user.pseudo);
 		connectedUsers.remove(user);
 	}
-	
+
 	/**
 	 * Renames a connected user
 	 * 
@@ -102,11 +135,11 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 			if (u == user) {
 				break;
 			}
-			index ++;
+			index++;
 		}
 		model.set(index, user.pseudo);
 	}
-	
+
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		openChat.setText("Chat!");
@@ -114,18 +147,26 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 	}
 
 	@Override
-    public void actionPerformed(ActionEvent ae){
-		
-		User distantUser = connectedUsers.get(liste.getSelectedIndex());;
-        openChat.setText("Ouverture fenetre de chat...");
-        openChat.setEnabled(false);
-        
-        SessionEvent evt = new SessionEvent(distantUser);
-        
-        try {
+	public void actionPerformed(ActionEvent ae) {
+
+		User distantUser = connectedUsers.get(liste.getSelectedIndex());
+		;
+		openChat.setText("Ouverture fenetre de chat...");
+		openChat.setEnabled(false);
+
+		SessionEvent evt = new SessionEvent(distantUser);
+
+		try {
 			eventQueue.addEventToQueue(evt);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-    }  	 
+	}
+
+//	public static void main(String args[]) {
+//		User Marton = new User(5, "Marton", false, "192.168.0.3");
+//		EventQueue evtq = new EventQueue(null);
+//		new MainWindow(Marton, evtq);
+//
+//	}
 }
