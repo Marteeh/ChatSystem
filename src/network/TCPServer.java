@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 import utils.EventQueue;
-import utils.EventListener;
 
 public class TCPServer extends Thread {
 	private final EventQueue eventQueue;

@@ -71,8 +71,4 @@ public class UDPSocket extends Thread {
 			e.printStackTrace();
 		}
 	}
-	
-	public String getIpAddress() {
-		return receiverSocket.getLocalAddress().getHostAddress();
-	}
 }

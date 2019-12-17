@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import application.PacketLogin;
+import application.PacketMessage;
 import application.PacketPseudoAvailabilityCheck;
 import application.PacketSignin;
+import application.PacketStartSession;
 import application.PacketUser;
 import application.User;
 import database.Database;
@@ -54,6 +56,8 @@ public class ServerController implements EventListener {
 		packetFactory.registerPacket(PacketSignin.class);
 		packetFactory.registerPacket(PacketPseudoAvailabilityCheck.class);
 		packetFactory.registerPacket(PacketUser.class);
+		packetFactory.registerPacket(PacketMessage.class);
+		packetFactory.registerPacket(PacketStartSession.class);
 	}
 
 	@Override

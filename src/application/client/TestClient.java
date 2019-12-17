@@ -6,10 +6,11 @@ public class TestClient {
 	
 	public static void main(String[] args) throws Exception {
 		ClientController controller;
-		if(args.length == 2) {
+		if(args.length == 3) {
 			String instanceName = args[0];
+			String localAddress = args[1];
 			String serverAddress = args[1];
-			controller = new ClientController(instanceName, serverAddress);
+			controller = new ClientController(instanceName, localAddress, serverAddress);
 		} else {
 			controller = new ClientController();
 		}

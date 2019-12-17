@@ -109,16 +109,18 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 	
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
-		openChat.setText("Chat!");
-		openChat.setEnabled(true);
+		try {
+			User u = liste.getSelectedIndex() >= 0 ? connectedUsers.get(liste.getSelectedIndex()) : null;
+			eventQueue.addEventToQueue(new UserSelectionChangedEvent(u));
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
 	}
 
 	@Override
     public void actionPerformed(ActionEvent ae){
 		
-		User distantUser = connectedUsers.get(liste.getSelectedIndex());;
-        openChat.setText("Ouverture fenetre de chat...");
-        openChat.setEnabled(false);
+		User distantUser = connectedUsers.get(liste.getSelectedIndex());
         
         SessionEvent evt = new SessionEvent(distantUser);
         
@@ -127,5 +129,13 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-    }  	 
+    }  	
+	
+	public void setOpenChatEnabled(boolean enabled) {
+        openChat.setEnabled(enabled);
+	}
+	
+	public void unselectUser() {
+		liste.clearSelection();
+	}
 }
