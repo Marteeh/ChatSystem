@@ -26,10 +26,10 @@ import utils.EventQueue;
 public class ServerController implements EventListener {
 
 	private static final int SERVER_PORT = 4321;
-	private static final String DATABASE_URL = "com.mysql.jdbc.Driver";
-	private static final String DATABASE_DRIVER = "jdbc:mysql://localhost:3306/sonoo";
-	private static final String DATABASE_USERNAME = "root";
-	private static final String DATABASE_PASSWORD = "root";
+	private static final String DATABASE_URL = "jdbc:mysql://srv-bdens.insa-toulouse.fr/tpservlet_07";
+	private static final String DATABASE_DRIVER = "com.mysql.cj.jdbc.Driver";
+	private static final String DATABASE_USERNAME = "tpservlet_07";
+	private static final String DATABASE_PASSWORD = "ODei0ce1";
 
 	private final EventQueue eventQueue = new EventQueue(this);
 	private final PacketFactory packetFactory = new PacketFactory();
@@ -38,17 +38,17 @@ public class ServerController implements EventListener {
 	private final Console console = new Console(eventQueue);
 	private Database database;
 	private TCPServer tcpServer;
-	private int nextAttribuedUserId = 0;
 
 	ServerController() throws ClassNotFoundException, SQLException {
 		registerPackets();
-		//database = new Database(DATABASE_URL, DATABASE_DRIVER, DATABASE_USERNAME, DATABASE_PASSWORD);
+		database = new Database(DATABASE_URL, DATABASE_DRIVER, DATABASE_USERNAME, DATABASE_PASSWORD);
 	}
 
 	public void start() throws IOException {
 		eventQueue.start();
 		tcpServer = new TCPServer(eventQueue, packetFactory, SERVER_PORT);
 		tcpServer.start();
+		console.start();
 	}
 
 	private void registerPackets() {
@@ -58,6 +58,11 @@ public class ServerController implements EventListener {
 		packetFactory.registerPacket(PacketUser.class);
 		packetFactory.registerPacket(PacketMessage.class);
 		packetFactory.registerPacket(PacketStartSession.class);
+	}
+
+	// Utile pour les tests seulement
+	public EventQueue getEventQueue() {
+		return eventQueue;
 	}
 
 	@Override
@@ -80,9 +85,11 @@ public class ServerController implements EventListener {
 		if (event instanceof TCPPacketEvent) {
 			TCPPacketEvent e = (TCPPacketEvent) event;
 			if (e.packet instanceof PacketSignin) {
-				RequestUserSignin r = new RequestUserSignin();
-				//database.executeRequest(r);
-				e.client.sendPacket(new PacketSignin(nextAttribuedUserId++));
+				GetLastUserIdRequest r = new GetLastUserIdRequest();
+				database.executeRequest(r);
+				int attribuedUserId = r.lastUserId + 1;
+				database.executeRequest(new AddUserRequest(attribuedUserId));
+				e.client.sendPacket(new PacketSignin(attribuedUserId));
 			}
 		}
 	}

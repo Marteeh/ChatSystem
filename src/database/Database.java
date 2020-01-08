@@ -20,8 +20,12 @@ public class Database {
 	public void executeRequest(Request request) {
 		ResultSet rs;
 		try {
-			rs = stmt.executeQuery(request.createSQLRequest());
-			request.readResult(rs);
+			if(request instanceof QueryRequest) {
+				rs = stmt.executeQuery(request.createSQLRequest());
+				((QueryRequest)request).readResult(rs);
+			} else {
+				stmt.execute(request.createSQLRequest());
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

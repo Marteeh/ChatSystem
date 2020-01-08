@@ -2,19 +2,23 @@ package application.server;
 
 import java.sql.ResultSet;
 
-import database.Request;
+import database.QueryRequest;
 
-public class RequestUserSignin implements Request {
+class StoreMessageRequest implements QueryRequest {
 
-	public int attribuedUserId;
+	StoreMessageRequest() {
+		
+	}
 	
 	@Override
 	public String createSQLRequest() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void readResult(ResultSet rs) {
+		// TODO Auto-generated method stub
 		
 	}
 

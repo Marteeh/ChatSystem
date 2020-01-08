@@ -20,12 +20,12 @@ public class PacketSignin implements Packet {
 
 	@Override
 	public void read(DataInputStream input) throws IOException {
-		
+		attribuedUserId = input.readInt();
 	}
 
 	@Override
 	public void write(DataOutputStream output) throws IOException {
-		
+		output.writeInt(attribuedUserId);
 	}
 
 }

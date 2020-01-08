@@ -67,6 +67,7 @@ public class ClientController implements EventListener {
 	private int sessionId = 0;
 	private LoginWindow loginWindow;
 	private MainWindow mainWindow;
+	private LoginEvent oldLogin;
 
 	ClientController() throws URISyntaxException, NumberFormatException, IOException {
 		this("", "localhost", "localhost");
@@ -141,6 +142,18 @@ public class ClientController implements EventListener {
 			loginWindow.showMessage("Le pseudo que vous avez choisi est déja pris, veuillez en choisir un autre.",
 					"Erreur");
 			loginWindow.enableLoginButton();
+			reconnectToLastSessionIfNeeded();
+		}
+	}
+	
+	private void reconnectToLastSessionIfNeeded() {
+		if(oldLogin != null) {
+			try {
+				eventQueue.addEventToQueue(oldLogin);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			oldLogin = null;
 		}
 	}
 
@@ -154,6 +167,7 @@ public class ClientController implements EventListener {
 					loginWindow.showMessage(
 							"Le pseudo que vous avez choisi est déja pris, veuillez en choisir un autre.", "Erreur");
 					loginWindow.enableLoginButton();
+					reconnectToLastSessionIfNeeded();
 					return;
 				}
 			}
@@ -179,6 +193,9 @@ public class ClientController implements EventListener {
 		state = State.STARTED;
 		sessionId++;
 		if(mainWindow != null) {
+			for(Session s : opennedSessions.values()) {
+				s.hide();
+			}
 			mainWindow.dispose();
 			mainWindow = null;
 		}
@@ -201,6 +218,13 @@ public class ClientController implements EventListener {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+		}
+		updatePseudoInSessions(p.user);
+	}
+	
+	private void updatePseudoInSessions(User user) {
+		for(Session s : opennedSessions.values()) {
+			s.updatePseudos(user);
 		}
 	}
 
@@ -261,6 +285,7 @@ public class ClientController implements EventListener {
 			RenamePseudoEvent e = (RenamePseudoEvent) event;
 			if (state.equals(State.LOGGED)) {
 				disconnect();
+				oldLogin = new LoginEvent(currentUser.pseudo, currentUser.isExternal);
 				try {
 					eventQueue.addEventToQueue(new LoginEvent(e.pseudo, currentUser.isExternal));
 				} catch (InterruptedException e1) {
