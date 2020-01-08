@@ -105,7 +105,7 @@ public class ClientController implements EventListener {
 	}
 
 	public void start() throws InterruptedException, NumberFormatException, IOException {
-		loginWindow = new LoginWindow(eventQueue, false, true);
+		loginWindow = new LoginWindow(eventQueue, false, useCentralizedServer);
 		loginWindow.disableLoginButton();
 		eventQueue.start();
 		udpSocket.listen(UDP_PORT);
