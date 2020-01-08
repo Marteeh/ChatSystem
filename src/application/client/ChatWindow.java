@@ -11,7 +11,7 @@ import java.util.Date;
 
 
 
-public class ChatWindow extends JFrame implements ActionListener {
+public class ChatWindow extends JFrame implements ActionListener, KeyListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -38,7 +38,8 @@ public class ChatWindow extends JFrame implements ActionListener {
 
         messageBox = new JTextField(30);
         messageBox.requestFocusInWindow();
-
+        messageBox.addKeyListener(this);
+        
         sendMessage = new JButton("Send Message");
         sendMessage.addActionListener(this);
 
@@ -125,5 +126,35 @@ public class ChatWindow extends JFrame implements ActionListener {
         messageBox.setText("");
         messageBox.requestFocusInWindow();
     }
+    
+    //"ENTER" Key listener
+    public void keyPressed(KeyEvent e) {
+    	if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+    		MessageEvent evt = new MessageEvent(currentUser, distantUser, messageBox.getText());
+            try {
+                eventQueue.addEventToQueue(evt);
+            } catch (InterruptedException ie) {
+                ie.printStackTrace();
+            }
+
+            messageBox.setText("");
+            messageBox.requestFocusInWindow();
+    	}
+    }
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {		
+	}
+	
+//	public static void main(String[] args) {
+//		User Tinmar = new User(0, "martin", false, "localhost");
+//		User Floflo = new User(1, "flo", false, "localhost");
+//		EventQueue evtq = new EventQueue(null);
+//		new ChatWindow (Floflo, Tinmar, evtq);
+//	}
 
 }
