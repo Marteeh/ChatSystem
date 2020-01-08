@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import application.client.ChatWindow;
+import network.Packet;
+import network.PacketFactory;
 import network.TCPClient;
 import utils.EventQueue;
 
@@ -13,16 +15,20 @@ public class Session {
 	public User userFrom;
 	public User userTo;
 	private final EventQueue eventQueue;
+	public final boolean useTunnel;
 
 	private boolean visible = false;
 	private ChatWindow chatWindow;
 	private final List<Message> messages = new ArrayList<Message>();
+	private final TCPTunnel tunnel;
 
-	public Session(TCPClient client, User userFrom, User userTo, EventQueue eventQueue) {
+	public Session(TCPClient client, User userFrom, User userTo, EventQueue eventQueue, PacketFactory packetFactory) {
 		tcpClient = client;
 		this.userFrom = userFrom;
 		this.userTo = userTo;
 		this.eventQueue = eventQueue;
+		useTunnel = userFrom.isExternal || userTo.isExternal;
+		tunnel = useTunnel ? new TCPTunnel(userTo.id, client, packetFactory) : null;
 	}
 
 	public boolean isVisible() {
@@ -47,8 +53,12 @@ public class Session {
 		}
 	}
 
-	public void sendMessage(Message m) {
-		tcpClient.sendPacket(new PacketMessage(m));
+	public void sendPacket(Packet p) {
+		if(useTunnel) {
+			tunnel.sendPacket(p);
+		} else {
+			tcpClient.sendPacket(p);
+		}
 	}
 
 	public void addMessage(Message m) {
@@ -60,7 +70,9 @@ public class Session {
 			messages.add(m);
 		}
 		String pseudo = m.from == userFrom.id ? userFrom.pseudo : userTo.pseudo;
-		chatWindow.addMessage(m.timestamp, pseudo, m.content);
+		if(chatWindow != null) {
+			chatWindow.addMessage(m.timestamp, pseudo, m.content);
+		}
 	}
 
 	public void updatePseudos(User user) {

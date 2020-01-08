@@ -8,27 +8,26 @@ import network.Packet;
 
 public class PacketLogin implements Packet {
 
-	public String pseudo;
-	public boolean isExternal;
+	public User user;
 	
 	public PacketLogin() {
 		
 	}
 	
-	public PacketLogin(String pseudo, boolean isExternal) {
-		this.pseudo = pseudo;
-		this.isExternal = isExternal;
+	public PacketLogin(User user) {
+		this.user = user;
 	}
 	
 	@Override
 	public void read(DataInputStream input) throws IOException {
-		pseudo = input.readUTF();
-		isExternal = input.readBoolean();
+		user = new User(input.readInt(), input.readUTF(), input.readBoolean(), input.readUTF());
 	}
 
 	@Override
 	public void write(DataOutputStream output) throws IOException {
-		output.writeUTF(pseudo);
-		output.writeBoolean(isExternal);
+		output.writeInt(user.id);
+		output.writeUTF(user.pseudo);
+		output.writeBoolean(user.isExternal);
+		output.writeUTF(user.ipAddress);
 	}
 }

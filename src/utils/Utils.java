@@ -17,4 +17,8 @@ public class Utils {
 		str += "." + ipAddress[3];
 		return str;
 	}
+	
+	public static String escape(String str) {
+		return str.replace("\"", "\\\"").replace("'", "\\'");
+	}
 }

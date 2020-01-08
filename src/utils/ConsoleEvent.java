@@ -9,4 +9,12 @@ public class ConsoleEvent implements Event {
 		this.action = action;
 		this.args = args;
 	}
+	
+	public String getFullCmd() {
+		String cmd = action;
+		for(String arg : args) {
+			cmd += " " + arg;
+		}
+		return cmd;
+	}
 }

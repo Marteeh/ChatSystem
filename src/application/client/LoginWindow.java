@@ -21,7 +21,7 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 	boolean isExternal = false;
 	static JLabel message;
 
-	LoginWindow(EventQueue eventQueue) {
+	LoginWindow(EventQueue eventQueue, boolean extUsrChecked, boolean extUsrEnabled) {
 
 		this.eventQueue = eventQueue;
 
@@ -43,10 +43,11 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 		externalUser = new JLabel();
 		externalUser.setText("I'm an external user");
 		extUsr = new JCheckBox();
+		extUsr.setEnabled(extUsrEnabled);
+		extUsr.setSelected(extUsrChecked);
 
 		// login button
 		login = new JButton("LOGIN");
-		login.setEnabled(false);
 
 		panel = new JPanel(new GridLayout(3, 1));
 
@@ -107,7 +108,15 @@ public class LoginWindow extends JFrame implements ActionListener, ItemListener 
 
 	public void enableLoginButton() {
 		login.setEnabled(true);
-		message.setText("LOGIN");
+		login.setText("LOGIN");
+	}
+
+	public void disableLoginButton() {
+		login.setEnabled(false);
+	}
+
+	public void disableExternalUserCheckbox() {
+		extUsr.setEnabled(false);
 	}
 
 }

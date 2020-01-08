@@ -41,6 +41,7 @@ public class ChatWindow extends JFrame implements ActionListener {
 
         sendMessage = new JButton("Send Message");
         sendMessage.addActionListener(this);
+        messageBox.addActionListener(this);
 
         chatBox = new JTextArea();
         chatBox.setEditable(false);

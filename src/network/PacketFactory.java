@@ -14,11 +14,11 @@ public class PacketFactory {
 		typeList.add(packetType);
 	}
 	
-	Packet createPacket(int packetType) throws InstantiationException, IllegalAccessException {
+	public Packet createPacket(int packetType) throws InstantiationException, IllegalAccessException {
 		return typeList.get(packetType).newInstance();
 	}
 	
-	int getPacketType(Packet packet) {
+	public int getPacketType(Packet packet) {
 		return typeMap.get(packet.getClass());
 	}
 }

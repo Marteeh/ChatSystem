@@ -24,6 +24,7 @@ public class Database {
 				rs = stmt.executeQuery(request.createSQLRequest());
 				((QueryRequest)request).readResult(rs);
 			} else {
+				System.out.println(request.createSQLRequest());
 				stmt.execute(request.createSQLRequest());
 			}
 		} catch (SQLException e) {
