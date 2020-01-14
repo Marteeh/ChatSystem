@@ -11,8 +11,7 @@ public class Database {
 	private final Connection coon;
 	private final Statement stmt;
 
-	public Database(String url, String driver, String username, String password) throws SQLException, ClassNotFoundException {
-		Class.forName(driver);
+	public Database(String url, String username, String password) throws SQLException, ClassNotFoundException {
 		coon = DriverManager.getConnection(url, username, password);
 		stmt = coon.createStatement();
 	}

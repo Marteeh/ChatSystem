@@ -39,7 +39,6 @@ public class ServerController implements EventListener {
 
 	private static final int SERVER_PORT = 4321;
 	private static final String DATABASE_URL = "jdbc:mysql://srv-bdens.insa-toulouse.fr/tpservlet_07";
-	private static final String DATABASE_DRIVER = "com.mysql.cj.jdbc.Driver";
 	private static final String DATABASE_USERNAME = "tpservlet_07";
 	private static final String DATABASE_PASSWORD = "ODei0ce1";
 
@@ -55,7 +54,7 @@ public class ServerController implements EventListener {
 
 	ServerController() throws ClassNotFoundException, SQLException {
 		registerPackets();
-		database = new Database(DATABASE_URL, DATABASE_DRIVER, DATABASE_USERNAME, DATABASE_PASSWORD);
+		database = new Database(DATABASE_URL, DATABASE_USERNAME, DATABASE_PASSWORD);
 	}
 
 	public void start() throws IOException {
