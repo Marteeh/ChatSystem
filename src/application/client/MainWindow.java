@@ -1,126 +1,171 @@
 package application.client;
 
-import application.User;
-import utils.EventQueue;
+import java.awt.event.WindowAdapter;
 
-import java.awt.event.*;
-import java.awt.*;
-import javax.swing.*;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import java.util.ArrayList;
-import java.util.List;
+import application.User;
+import utils.EventQueue;
 
-public class MainWindow extends JFrame implements ActionListener, ListSelectionListener {
+public class MainWindow extends javax.swing.JFrame {
+
+	private EventQueue eventQueue;
+	private final User currentUser;
 
 	private static final long serialVersionUID = 1L;
 
-	private EventQueue eventQueue;
-	JPanel panel, renamePopup;
-	JList<String> liste;
-	DefaultListModel<String> model;
-	JButton openChat, renameButton, confRenameButton;
-	JLabel description, newUsername, popupMessage;
-	JTextField renameField;
-	List<User> connectedUsers = new ArrayList<User>();
+	public MainWindow(final User currentUser, EventQueue eventQueue) {
 
-	/**
-	 * MainWindow launcher
-	 * 
-	 * @param currentUser User type representing the current user, used for the
-	 *                    window title.
-	 * @param eventQueue  the queue used for receiving and sending events to the
-	 *                    controler.
-	 */
-	MainWindow(User currentUser, EventQueue eventQueue) {
-
+		this.currentUser = currentUser;
 		this.eventQueue = eventQueue;
 
-		// Connected User list, updates with AddConnectedUser(), RemoveConnectedUser(),
-		// or setConnectUser()
-		model = new DefaultListModel<String>();
-		liste = new JList<String>(model);
+		initComponents();
 
-		// "Open Chat" Button, unclickable until a connected User is selected
-		openChat = new JButton("Chat!");
-		openChat.setEnabled(false);
+	}
 
-		// Rename Button
-		renameButton = new JButton("Rename");
-		popupMessage = new JLabel("");
+	private void initComponents() {
 
-		panel = new JPanel(new GridLayout(2, 1));
+		mainPanel = new javax.swing.JPanel();
+		model = new javax.swing.DefaultListModel<String>();
+		connectedUsersList = new javax.swing.JList<String>(model);
+		chatButton = new javax.swing.JButton();
+		menuBar = new javax.swing.JMenuBar();
+		menuOptions = new javax.swing.JMenu();
+		renameClick = new javax.swing.JMenuItem();
+		disconnectClick = new javax.swing.JMenuItem();
+		renamePopup = new javax.swing.JPanel(new java.awt.GridLayout(2, 1));
+		renameField = new javax.swing.JTextField(14);
 
-		panel.add(renameButton, BorderLayout.NORTH);
-		panel.add(liste, BorderLayout.CENTER);
-		panel.add(openChat, BorderLayout.SOUTH);
-		panel.add(popupMessage);
-
-		// Rename popup
-		renamePopup = new JPanel(new GridLayout(2,1));
-		renameField = new JTextField(14);
+		chatButton.setText("Chat !");
+		chatButton.setEnabled(false);
+		chatButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				chatButtonActionPerformed(evt);
+			}
+		});
 		
-		renamePopup.add(new JLabel("New Username : "));
-		renamePopup.add(renameField);
-		
+		setTitle("ChatSystem Turbo 9000 - [" + currentUser.pseudo +"]");
 
-		// Adding actionListeners
-		renameButton.addActionListener(new ActionListener() {
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(final java.awt.event.WindowEvent evt) {
+        		disconnectClickActionPerformed(null);
+        	}
+		});
+		
+		javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
+		mainPanel.setLayout(mainPanelLayout);
+		mainPanelLayout
+				.setHorizontalGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+						.addComponent(connectedUsersList, javax.swing.GroupLayout.DEFAULT_SIZE,
+								javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(chatButton, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE));
+		mainPanelLayout.setVerticalGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+				.addGroup(mainPanelLayout.createSequentialGroup()
+						.addComponent(connectedUsersList, javax.swing.GroupLayout.PREFERRED_SIZE, 375,
+								javax.swing.GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
+								javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(chatButton, javax.swing.GroupLayout.PREFERRED_SIZE, 36,
+								javax.swing.GroupLayout.PREFERRED_SIZE)));
+
+		menuOptions.setText("Options");
+		
+		//POUR METTRE AU MILIEU MAIS CA MARCHE PAS ENCORE
+		DefaultListCellRenderer centerRenderer = new DefaultListCellRenderer();
+		centerRenderer.setHorizontalTextPosition(javax.swing.JLabel.CENTER);
+		connectedUsersList.setCellRenderer(centerRenderer);
+		connectedUsersList.addListSelectionListener(new ListSelectionListener() {
 			@Override
-			public void actionPerformed(ActionEvent ae) {
-
-				String popupButtons[] = { "Confirm Rename", "Cancel" };
-
-				int changed = JOptionPane.showOptionDialog(panel, renamePopup, "Change Username",
-						JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, popupButtons, null);
-
-				if (changed == JOptionPane.YES_OPTION) {
-					String newUsername = renameField.getText();
-					
-					if (!newUsername.equals(currentUser.pseudo)) {
-						RenamePseudoEvent evt = new RenamePseudoEvent(newUsername);
-
-						try {
-							eventQueue.addEventToQueue(evt);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-
-					} else {
-						showMessage("This is your current username, please select a new one.", "Error");
-					}
-				}
+			public void valueChanged(ListSelectionEvent e) {
+				connectedUsersValueChanged(e);
 			}
 		});
 
-		liste.addListSelectionListener(this);
-		openChat.addActionListener(this);
+		renameClick.setText("Rename");
+		renameClick.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				renameClickActionPerformed(evt);
+			}
+		});
+		menuOptions.add(renameClick);
 
-		setTitle("ChatSystem v9000 [" + currentUser.pseudo + "] ");
-		add(panel, BorderLayout.NORTH);
-		setSize(300, 600);
+		disconnectClick.setText("Disconnect");
+		disconnectClick.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				disconnectClickActionPerformed(evt);
+			}
+		});
+		menuOptions.add(disconnectClick);
+
+		menuBar.add(menuOptions);
+
+		setJMenuBar(menuBar);
+
+		// Rename popup
+		renamePopup.add(new javax.swing.JLabel("New Username : "));
+		renamePopup.add(renameField);
+
+		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+		getContentPane().setLayout(layout);
+		layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
+				mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE,
+				javax.swing.GroupLayout.PREFERRED_SIZE));
+		layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
+				mainPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE,
+				javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
+
+		pack();
 		setVisible(true);
-		addWindowListener(new WindowAdapter() {
-			@Override
-            public void windowClosing(final WindowEvent we) {
+	}
+
+	private void renameClickActionPerformed(java.awt.event.ActionEvent evt) {
+		
+		String popupButtons[] = { "Confirm Rename", "Cancel" };
+
+		int changed = JOptionPane.showOptionDialog(mainPanel, renamePopup, "Change Username",
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, popupButtons, null);
+
+		if (changed == JOptionPane.YES_OPTION) {
+			String newUsername = renameField.getText();
+
+			if (!newUsername.equals(currentUser.pseudo)) {
+				RenamePseudoEvent renameEv = new RenamePseudoEvent(newUsername);
+
 				try {
-					eventQueue.addEventToQueue(new DisconnectEvent());
+					eventQueue.addEventToQueue(renameEv);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+
+			} else {
+				showMessage("This is your current username, please select a new one.", "Error");
 			}
-		});
+		}
 	}
 
-	/**
-	 * Shows an error message in a pop-up window
-	 * 
-	 * @param message
-	 * @param title
-	 */
-	public void showMessage(String message, String title) {
-		JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
+	private void disconnectClickActionPerformed(java.awt.event.ActionEvent evt) {
+		DisconnectEvent discoEv = new DisconnectEvent();
+		
+		try {
+			eventQueue.addEventToQueue(discoEv);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void chatButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		User distantUser = connectedUsers.get(connectedUsersList.getSelectedIndex());
+        
+        SessionEvent sessionEv = new SessionEvent(distantUser);
+        
+        try {
+			eventQueue.addEventToQueue(sessionEv);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -128,7 +173,7 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 	 * 
 	 * @param user User type representing the connected user
 	 */
-	public void addConnectedUser(User user) {
+	public static void addConnectedUser(User user) {
 		model.addElement(user.pseudo);
 		connectedUsers.add(user);
 	}
@@ -158,36 +203,71 @@ public class MainWindow extends JFrame implements ActionListener, ListSelectionL
 		}
 		model.set(index, user.pseudo);
 	}
-
-	@Override
-	public void valueChanged(ListSelectionEvent e) {
+	
+	public void showMessage(String message, String title) {
+		JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
+	}
+	
+	public void connectedUsersValueChanged(ListSelectionEvent e) {
 		try {
-			User u = liste.getSelectedIndex() >= 0 ? connectedUsers.get(liste.getSelectedIndex()) : null;
+			User u = connectedUsersList.getSelectedIndex() >= 0 ? connectedUsers.get(connectedUsersList.getSelectedIndex()) : null;
 			eventQueue.addEventToQueue(new UserSelectionChangedEvent(u));
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
 	}
-
-	@Override
-    public void actionPerformed(ActionEvent ae){
-		
-		User distantUser = connectedUsers.get(liste.getSelectedIndex());
-        
-        SessionEvent evt = new SessionEvent(distantUser);
-        
-        try {
-			eventQueue.addEventToQueue(evt);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-    }  	
 	
 	public void setOpenChatEnabled(boolean enabled) {
-        openChat.setEnabled(enabled);
+        chatButton.setEnabled(enabled);
 	}
 	
 	public void unselectUser() {
-		liste.clearSelection();
+		connectedUsersList.clearSelection();
 	}
+
+	public static void main(String args[]) {
+		/* Set the Nimbus look and feel */
+		try {
+			for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					javax.swing.UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch (ClassNotFoundException ex) {
+			java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null,
+					ex);
+		} catch (InstantiationException ex) {
+			java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null,
+					ex);
+		} catch (IllegalAccessException ex) {
+			java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null,
+					ex);
+		} catch (javax.swing.UnsupportedLookAndFeelException ex) {
+			java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null,
+					ex);
+		}
+
+		/* Create and display the form */
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				User marton = new User(0, "marton", false, "localhost");
+				addConnectedUser(marton);
+				new MainWindow(marton, null).setVisible(true);
+			}
+		});
+	}
+
+	// Variables declaration
+	private javax.swing.JButton chatButton;
+	private javax.swing.JList<String> connectedUsersList;
+	private static javax.swing.DefaultListModel<String> model;
+	private javax.swing.JMenuItem disconnectClick;
+	private javax.swing.JPanel mainPanel;
+	private javax.swing.JMenuBar menuBar;
+	private javax.swing.JMenu menuOptions;
+	private javax.swing.JMenuItem renameClick;
+	private javax.swing.JPanel renamePopup;
+	private javax.swing.JTextField renameField;
+	private static java.util.List<User> connectedUsers = new java.util.ArrayList<User>();
 }
