@@ -61,14 +61,12 @@ public class MainWindow extends javax.swing.JFrame {
 				.setHorizontalGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 						.addComponent(connectedUsersList, javax.swing.GroupLayout.DEFAULT_SIZE,
 								javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(chatButton, javax.swing.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE));
+						.addComponent(chatButton, javax.swing.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE));
 		mainPanelLayout.setVerticalGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 				.addGroup(mainPanelLayout.createSequentialGroup()
-						.addComponent(connectedUsersList, javax.swing.GroupLayout.PREFERRED_SIZE, 375,
-								javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-								javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(chatButton, javax.swing.GroupLayout.PREFERRED_SIZE, 36,
+						.addComponent(connectedUsersList, javax.swing.GroupLayout.DEFAULT_SIZE, 375,
+								Short.MAX_VALUE)
+						.addComponent(chatButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40,
 								javax.swing.GroupLayout.PREFERRED_SIZE)));
 
 		menuOptions.setText("Options");
@@ -111,8 +109,8 @@ public class MainWindow extends javax.swing.JFrame {
 		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
 		layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
-				mainPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE,
-				javax.swing.GroupLayout.PREFERRED_SIZE));
+				mainPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE,
+				Short.MAX_VALUE));
 		layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
 				mainPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE,
 				javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
@@ -173,7 +171,7 @@ public class MainWindow extends javax.swing.JFrame {
 	 * 
 	 * @param user User type representing the connected user
 	 */
-	public static void addConnectedUser(User user) {
+	public void addConnectedUser(User user) {
 		model.addElement(user.pseudo);
 		connectedUsers.add(user);
 	}
@@ -204,6 +202,12 @@ public class MainWindow extends javax.swing.JFrame {
 		model.set(index, user.pseudo);
 	}
 	
+	/**
+	 * Show a message in pop-up window
+	 * 
+	 * @param message The message to be shown
+	 * @param title	The title of the new frame
+	 */
 	public void showMessage(String message, String title) {
 		JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
 	}
@@ -217,6 +221,11 @@ public class MainWindow extends javax.swing.JFrame {
 		}
 	}
 	
+	/**
+	 * Changes the state of the "Chat!" Button
+	 * 
+	 * @param enabled Enabled if true, disabled if false
+	 */
 	public void setOpenChatEnabled(boolean enabled) {
         chatButton.setEnabled(enabled);
 	}
@@ -252,7 +261,6 @@ public class MainWindow extends javax.swing.JFrame {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				User marton = new User(0, "marton", false, "localhost");
-				addConnectedUser(marton);
 				new MainWindow(marton, null).setVisible(true);
 			}
 		});

@@ -114,6 +114,7 @@ public class LoginWindow extends JFrame {
 			loginButton.getAccessibleContext().setAccessibleParent(null);
 
 			pack();
+			setResizable(false);
 			setVisible(true);
 		}
 
