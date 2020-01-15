@@ -23,6 +23,7 @@ public class MainWindow extends javax.swing.JFrame {
 		this.eventQueue = eventQueue;
 
 		initComponents();
+		HideToSystemTray.configureSystemTray(this, eventQueue, true);
 
 	}
 
@@ -173,7 +174,7 @@ public class MainWindow extends javax.swing.JFrame {
 	 * 
 	 * @param user User type representing the connected user
 	 */
-	public static void addConnectedUser(User user) {
+	public void addConnectedUser(User user) {
 		model.addElement(user.pseudo);
 		connectedUsers.add(user);
 	}
@@ -252,7 +253,7 @@ public class MainWindow extends javax.swing.JFrame {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				User marton = new User(0, "marton", false, "localhost");
-				addConnectedUser(marton);
+				//addConnectedUser(marton);
 				new MainWindow(marton, null).setVisible(true);
 			}
 		});
@@ -261,7 +262,7 @@ public class MainWindow extends javax.swing.JFrame {
 	// Variables declaration
 	private javax.swing.JButton chatButton;
 	private javax.swing.JList<String> connectedUsersList;
-	private static javax.swing.DefaultListModel<String> model;
+	private javax.swing.DefaultListModel<String> model;
 	private javax.swing.JMenuItem disconnectClick;
 	private javax.swing.JPanel mainPanel;
 	private javax.swing.JMenuBar menuBar;
@@ -269,5 +270,5 @@ public class MainWindow extends javax.swing.JFrame {
 	private javax.swing.JMenuItem renameClick;
 	private javax.swing.JPanel renamePopup;
 	private javax.swing.JTextField renameField;
-	private static java.util.List<User> connectedUsers = new java.util.ArrayList<User>();
+	private java.util.List<User> connectedUsers = new java.util.ArrayList<User>();
 }

@@ -26,12 +26,14 @@ public class LoginWindow extends JFrame {
 		this.eventQueue = eventQueue;
 		this.extUsrChecked = extUsrChecked;
 		this.extUsrEnabled = extUsrEnabled;
+		this.isExternal = extUsrChecked;
 		
 		extUserCheck = new JCheckBox();
 		extUserCheck.setEnabled(extUsrEnabled);
 		extUserCheck.setSelected(extUsrChecked);
 		
 		initComponents();
+		HideToSystemTray.configureSystemTray(this, eventQueue, false);
 	}
 		
 		private void initComponents() {

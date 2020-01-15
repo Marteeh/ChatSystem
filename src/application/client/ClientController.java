@@ -29,6 +29,7 @@ import application.PacketKeepMessage;
 import application.PacketLogin;
 import application.PacketLoginResult;
 import application.PacketMessage;
+import application.PacketPopup;
 import application.PacketPseudoAvailabilityCheck;
 import application.PacketSignin;
 import application.PacketStartSession;
@@ -304,6 +305,7 @@ public class ClientController implements EventListener {
 		packetFactory.registerPacket(PacketLoginResult.class);
 		packetFactory.registerPacket(PacketTunnel.class);
 		packetFactory.registerPacket(PacketGetConnectedUsers.class);
+		packetFactory.registerPacket(PacketPopup.class);
 	}
 
 	@Override
@@ -512,6 +514,11 @@ public class ClientController implements EventListener {
 					if(s != null) {
 						s.updatePseudos(u);
 					}
+					if(u.id == currentUser.id) {
+						for(Session s2 : opennedSessions.values()) {
+							s2.updatePseudos(u);
+						}
+					}
 				}
 				Set<Integer> connectedUsers = p.users.stream().map((User u) -> {return u.id;}).collect(Collectors.toSet());
 				Set<Integer> disconnectedUsers = new HashSet<Integer>();
@@ -543,6 +550,8 @@ public class ClientController implements EventListener {
 					state = State.STARTED;
 					reconnectToLastSessionIfNeeded();
 				}
+			} else if(e.packet instanceof PacketPopup) {
+				new Popup();
 			}
 		} else if (event instanceof UDPPacketEvent) {
 			UDPPacketEvent e = (UDPPacketEvent) event;

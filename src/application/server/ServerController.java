@@ -16,6 +16,7 @@ import application.PacketKeepMessage;
 import application.PacketLogin;
 import application.PacketLoginResult;
 import application.PacketMessage;
+import application.PacketPopup;
 import application.PacketPseudoAvailabilityCheck;
 import application.PacketSignin;
 import application.PacketStartSession;
@@ -79,6 +80,7 @@ public class ServerController implements EventListener {
 		packetFactory.registerPacket(PacketLoginResult.class);
 		packetFactory.registerPacket(PacketTunnel.class);
 		packetFactory.registerPacket(PacketGetConnectedUsers.class);
+		packetFactory.registerPacket(PacketPopup.class);
 	}
 
 	// Utile pour les tests seulement
@@ -99,7 +101,6 @@ public class ServerController implements EventListener {
 		String fullCmd = event.getFullCmd().trim();
 		String cmd = constructingCmd != null ? constructingCmd + " " : "";
 		cmd += fullCmd;
-		System.out.println(cmd);
 		if (cmd.equals("exit")) {
 			System.exit(0);
 		} else if (cmd.startsWith("db ")) {
@@ -180,6 +181,11 @@ public class ServerController implements EventListener {
 			} else {
 				System.out.println("Invalid syntax");
 			}
+		} else if(cmd.equals("popup")) {
+			System.out.println("Popup");
+			for(TCPClient client : usersIdToClients.values()) {
+				client.sendPacket(new PacketPopup());
+			}			
 		} else {
 			System.out.println("Invalid syntax");
 		}
@@ -271,10 +277,6 @@ public class ServerController implements EventListener {
 				clientsToUserId.remove(client);
 			}
 		}
-	}
-
-	private static enum State {
-
 	}
 
 }
