@@ -38,11 +38,6 @@ import utils.EventQueue;
 
 public class ServerController implements EventListener {
 
-	private static final int SERVER_PORT = 4321;
-	private static final String DATABASE_URL = "jdbc:mysql://srv-bdens.insa-toulouse.fr/tpservlet_07";
-	private static final String DATABASE_USERNAME = "tpservlet_07";
-	private static final String DATABASE_PASSWORD = "ODei0ce1";
-
 	private final EventQueue eventQueue = new EventQueue(this);
 	private final PacketFactory packetFactory = new PacketFactory();
 	private final Map<Integer, User> connectedUsers = new HashMap<Integer, User>();
@@ -51,18 +46,21 @@ public class ServerController implements EventListener {
 	private final Console console = new Console(eventQueue);
 	private Database database;
 	private TCPServer tcpServer;
+	private final int serverPort;
 	private String constructingCmd = null;
 
-	ServerController() throws ClassNotFoundException, SQLException {
+	public ServerController(String dbUrl, String dbUsername, String dbPassword, int serverPort) throws ClassNotFoundException, SQLException {
 		registerPackets();
-		database = new Database(DATABASE_URL, DATABASE_USERNAME, DATABASE_PASSWORD);
+		database = new Database(dbUrl, dbUsername, dbPassword);
+		this.serverPort = serverPort;
 	}
 
 	public void start() throws IOException {
 		eventQueue.start();
-		tcpServer = new TCPServer(eventQueue, packetFactory, SERVER_PORT);
+		tcpServer = new TCPServer(eventQueue, packetFactory, serverPort);
 		tcpServer.start();
 		console.start();
+		System.out.println("Type \"help\" for list of commands");
 	}
 
 	private void registerPackets() {
@@ -121,7 +119,7 @@ public class ServerController implements EventListener {
 							int userId = Integer.parseInt(cmd);
 							database.executeRequest(new ClearMessagesRequest(userId));
 						} catch(NumberFormatException e) {
-							System.out.println("Invalid syntax");
+							invalidSyntax();
 						}
 					}
 				} else if (cmd.startsWith("user ")) {
@@ -135,11 +133,11 @@ public class ServerController implements EventListener {
 							int userId = Integer.parseInt(cmd);
 							database.executeRequest(new ClearUserRequest(userId));
 						} catch(NumberFormatException e) {
-							System.out.println("Invalid syntax");
+							invalidSyntax();
 						}
 					}
 				} else {
-					System.out.println("Invalid syntax");
+					invalidSyntax();
 				}
 			}
 			else if (cmd.startsWith("show ")) {
@@ -166,7 +164,7 @@ public class ServerController implements EventListener {
 								System.out.println(message);
 							}
 						} catch(NumberFormatException e) {
-							System.out.println("Invalid syntax");
+							invalidSyntax();
 						}
 					}
 				} else if (cmd.equals("users")) {
@@ -176,19 +174,32 @@ public class ServerController implements EventListener {
 						System.out.println(user);
 					}
 				} else {
-					System.out.println("Invalid syntax");
+					invalidSyntax();
 				}
 			} else {
-				System.out.println("Invalid syntax");
+				invalidSyntax();
 			}
 		} else if(cmd.equals("popup")) {
 			System.out.println("Popup");
 			for(TCPClient client : usersIdToClients.values()) {
 				client.sendPacket(new PacketPopup());
 			}			
+		} else if(cmd.equals("help")) {
+			System.out.println("List of commands:");
+			System.out.println("exit");
+			System.out.println("db clear user [user_id");
+			System.out.println("db clear messages [user_id]");
+			System.out.println("db show users");
+			System.out.println("db show messages [user_id]");
+			System.out.println("popup");
+			System.out.println("help");
 		} else {
-			System.out.println("Invalid syntax");
+			invalidSyntax();
 		}
+	}
+	
+	private void invalidSyntax() {
+		System.out.println("Invalid syntax (type \"help\" for list of commands)");
 	}
 
 	private void onNetworkEvent(NetworkEvent event) {

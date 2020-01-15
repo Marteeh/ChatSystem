@@ -55,13 +55,13 @@ import utils.Utils;
 
 public class ClientController implements EventListener {
 
-	private static final int SERVER_PORT = 1234;
-	private static final int CENTRALIZED_SERVER_PORT = 4321;
-	private static final int UDP_PORT = 8454;
-	private static final String BROADCAST_ADDRESS = "10.1.255.255";
-
 	private final String localAddress;
+	private final String broadcastAddress;
 	private final String serverAddress;
+	private final int localServerPort;
+	private final int centralizedServerPort;
+	private final int udpPort;
+	private final boolean useCentralizedServer;
 	private final Random random = new SecureRandom();
 	private final EventQueue eventQueue = new EventQueue(this);
 	private final PacketFactory packetFactory = new PacketFactory();
@@ -81,40 +81,32 @@ public class ClientController implements EventListener {
 	private MainWindow mainWindow;
 	private LoginEvent oldLogin;
 	private LoginEvent askedLogin;
-	private final boolean useCentralizedServer;
 
-	ClientController() throws URISyntaxException, NumberFormatException, IOException {
-		this("", "localhost", "localhost", false);
-	}
-
-	// instanceName est utile pour pouvoir tester sur la même machine afin de
-	// diférencier le fichier qui
-	// est cencé être unique par utilisateur
-	ClientController(String instanceName, String localAddress, String serverAddress, boolean useCentralizedServer)
+	public ClientController(String instanceName, String localAddress, String broadcastAddress, String serverAddress,
+			int localServerPort, int centralizedServerPort, int udpPort, boolean useCentralizedServer)
 			throws URISyntaxException, NumberFormatException, IOException {
 		this.localAddress = localAddress;
+		this.broadcastAddress = broadcastAddress;
 		this.serverAddress = serverAddress;
+		this.localServerPort = localServerPort;
+		this.centralizedServerPort = centralizedServerPort;
+		this.udpPort = udpPort;
+		this.useCentralizedServer = useCentralizedServer;
 		registerPackets();
 		userIdFile = new File(Utils.getRunningirectory() + "/userId" + instanceName + ".txt");
 		udpSocket = new UDPSocket(eventQueue, packetFactory);
-		this.useCentralizedServer = useCentralizedServer;
-	}
-
-	// Utile pour les tests seulement
-	public EventQueue getEventQueue() {
-		return eventQueue;
 	}
 
 	public void start() throws InterruptedException, NumberFormatException, IOException {
 		loginWindow = new LoginWindow(eventQueue, false, useCentralizedServer);
 		loginWindow.disableLoginButton();
 		eventQueue.start();
-		udpSocket.listen(UDP_PORT);
+		udpSocket.listen(udpPort);
 		// Delai d'écoute nécessaire pour s'assurer de pouvoir détecter les conflits
 		eventQueue.addEventToQueue(new StartEvent(), 1000);
 		loadUserId();
 		getTCPServer();
-		if(useCentralizedServer) {
+		if (useCentralizedServer) {
 			getTCPClientToCentralizedServer().sendPacket(new PacketGetConnectedUsers());
 		}
 	}
@@ -151,22 +143,25 @@ public class ClientController implements EventListener {
 		}
 		if (!alreadyUsed) {
 			state = State.LOGGING;
-			if(!e.isExternal) {				
-				if(useCentralizedServer) {					
-					getTCPClientToCentralizedServer().sendPacket(new PacketLogin(new User(attribuedUserId, e.pseudo, e.isExternal, localAddress)));
+			if (!e.isExternal) {
+				if (useCentralizedServer) {
+					getTCPClientToCentralizedServer().sendPacket(
+							new PacketLogin(new User(attribuedUserId, e.pseudo, e.isExternal, localAddress)));
 				} else {
 					long discriminant = random.nextLong();
 					Packet packet = new PacketPseudoAvailabilityCheck(attribuedUserId, e.pseudo, discriminant);
-					udpSocket.sendPacket(packet, BROADCAST_ADDRESS, UDP_PORT);
+					udpSocket.sendPacket(packet, broadcastAddress, udpPort);
 					try {
-						eventQueue.addEventToQueue(new LoginPhaseFinishedEvent(e.pseudo, e.isExternal, discriminant), 1000);
+						eventQueue.addEventToQueue(new LoginPhaseFinishedEvent(e.pseudo, e.isExternal, discriminant),
+								1000);
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
 				}
 			} else {
-				if(useCentralizedServer) {
-					getTCPClientToCentralizedServer().sendPacket(new PacketLogin(new User(attribuedUserId, e.pseudo, e.isExternal, localAddress)));
+				if (useCentralizedServer) {
+					getTCPClientToCentralizedServer().sendPacket(
+							new PacketLogin(new User(attribuedUserId, e.pseudo, e.isExternal, localAddress)));
 				} else {
 					loginWindow.showMessage("Le serveur centralisé est injoiniable", "Erreur");
 					state = State.STARTED;
@@ -181,9 +176,9 @@ public class ClientController implements EventListener {
 			reconnectToLastSessionIfNeeded();
 		}
 	}
-	
+
 	private void reconnectToLastSessionIfNeeded() {
-		if(oldLogin != null) {
+		if (oldLogin != null) {
 			try {
 				eventQueue.addEventToQueue(oldLogin);
 			} catch (InterruptedException e1) {
@@ -229,15 +224,15 @@ public class ClientController implements EventListener {
 		print("Disconnect");
 		state = State.STARTED;
 		sessionId++;
-		if(mainWindow != null) {
-			for(Session s : opennedSessions.values()) {
+		if (mainWindow != null) {
+			for (Session s : opennedSessions.values()) {
 				s.hide();
 			}
 			mainWindow.dispose();
 			mainWindow = null;
 		}
 		loginWindow.enableLoginButton();
-		if(useCentralizedServer) {
+		if (useCentralizedServer) {
 			getTCPClientToCentralizedServer().sendPacket(new PacketDisconnect());
 		}
 	}
@@ -262,9 +257,9 @@ public class ClientController implements EventListener {
 		}
 		updatePseudoInSessions(p.user);
 	}
-	
+
 	private void updatePseudoInSessions(User user) {
-		for(Session s : opennedSessions.values()) {
+		for (Session s : opennedSessions.values()) {
 			s.updatePseudos(user);
 		}
 	}
@@ -273,7 +268,7 @@ public class ClientController implements EventListener {
 	// les autres utilisateurs
 	private void periodicLogin() {
 		Packet packet = new PacketUser(currentUser);
-		udpSocket.sendPacket(packet, BROADCAST_ADDRESS, UDP_PORT);
+		udpSocket.sendPacket(packet, broadcastAddress, udpPort);
 		try {
 			eventQueue.addEventToQueue(new PeriodicLoginEvent(sessionId), 1000);
 		} catch (InterruptedException e1) {
@@ -350,18 +345,18 @@ public class ClientController implements EventListener {
 					if (s == null) {
 						boolean useTunnel = currentUser.isExternal || e.user.isExternal;
 						TCPClient client;
-						if(useTunnel) {
+						if (useTunnel) {
 							client = getTCPClientToCentralizedServer();
 						} else {
-							client = new TCPClient(eventQueue, packetFactory, e.user.ipAddress, SERVER_PORT);
+							client = new TCPClient(eventQueue, packetFactory, e.user.ipAddress, localServerPort);
 							client.start();
 						}
 						s = new Session(client, currentUser, e.user, eventQueue, packetFactory);
 						opennedSessions.put(e.user.id, s);
 						s.sendPacket(new PacketStartSession(currentUser.id));
 						TCPClient clientToCentralizedServer = getTCPClientToCentralizedServer();
-						if(clientToCentralizedServer != null) {
-							clientToCentralizedServer.sendPacket(new PacketGetHistory(currentUser.id, e.user.id));							
+						if (clientToCentralizedServer != null) {
+							clientToCentralizedServer.sendPacket(new PacketGetHistory(currentUser.id, e.user.id));
 						}
 					}
 					s.show();
@@ -383,8 +378,8 @@ public class ClientController implements EventListener {
 				s.addMessage(m);
 				s.sendPacket(new PacketMessage(m));
 				TCPClient clientToCentralizedServer = getTCPClientToCentralizedServer();
-				if(clientToCentralizedServer != null) {
-					clientToCentralizedServer.sendPacket(new PacketKeepMessage(m));				
+				if (clientToCentralizedServer != null) {
+					clientToCentralizedServer.sendPacket(new PacketKeepMessage(m));
 				}
 			}
 		} else if (event instanceof SessionCloseEvent) {
@@ -458,8 +453,8 @@ public class ClientController implements EventListener {
 					User distantUser = connectedUsers.get(((PacketStartSession) e.packet).userId);
 					Session s = new Session(e.client, currentUser, distantUser, eventQueue, packetFactory);
 					TCPClient clientToCentralizedServer = getTCPClientToCentralizedServer();
-					if(clientToCentralizedServer != null) {
-						clientToCentralizedServer.sendPacket(new PacketGetHistory(currentUser.id, distantUser.id));						
+					if (clientToCentralizedServer != null) {
+						clientToCentralizedServer.sendPacket(new PacketGetHistory(currentUser.id, distantUser.id));
 					}
 					opennedSessions.put(distantUser.id, s);
 				}
@@ -476,8 +471,8 @@ public class ClientController implements EventListener {
 			} else if (e.packet instanceof PacketHistory) {
 				PacketHistory p = (PacketHistory) e.packet;
 				Session s = opennedSessions.get(p.userId2);
-				if(s != null) {
-					for(Message m : p.messages) {
+				if (s != null) {
+					for (Message m : p.messages) {
 						packetFactory.registerPacket(PacketGetConnectedUsers.class);
 						packetFactory.registerPacket(PacketGetHistory.class);
 						packetFactory.registerPacket(PacketHistory.class);
@@ -494,47 +489,49 @@ public class ClientController implements EventListener {
 					e1.printStackTrace();
 				}
 			} else if (e.packet instanceof PacketConnectedUsers) {
-				PacketConnectedUsers p = (PacketConnectedUsers)e.packet;
-				for(User u : p.users) {
-					if(connectedUsers.containsKey(u.id)) {
+				PacketConnectedUsers p = (PacketConnectedUsers) e.packet;
+				for (User u : p.users) {
+					if (connectedUsers.containsKey(u.id)) {
 						User u2 = this.connectedUsers.get(u.id);
-						if(!u.pseudo.equals(u2.pseudo)) {
+						if (!u.pseudo.equals(u2.pseudo)) {
 							connectedUsers.put(u.id, u);
-							if(mainWindow != null) {
+							if (mainWindow != null) {
 								mainWindow.setConnectedUser(u);
 							}
 						}
-					} else if(u.id != attribuedUserId){
+					} else if (u.id != attribuedUserId) {
 						connectedUsers.put(u.id, u);
-						if(mainWindow != null) {
+						if (mainWindow != null) {
 							mainWindow.addConnectedUser(u);
 						}
 					}
 					Session s = opennedSessions.get(u.id);
-					if(s != null) {
+					if (s != null) {
 						s.updatePseudos(u);
 					}
-					if(u.id == currentUser.id) {
-						for(Session s2 : opennedSessions.values()) {
+					if (u.id == currentUser.id) {
+						for (Session s2 : opennedSessions.values()) {
 							s2.updatePseudos(u);
 						}
 					}
 				}
-				Set<Integer> connectedUsers = p.users.stream().map((User u) -> {return u.id;}).collect(Collectors.toSet());
+				Set<Integer> connectedUsers = p.users.stream().map((User u) -> {
+					return u.id;
+				}).collect(Collectors.toSet());
 				Set<Integer> disconnectedUsers = new HashSet<Integer>();
-				for(int userId : this.connectedUsers.keySet()) {
-					if(!connectedUsers.contains(userId)) {
+				for (int userId : this.connectedUsers.keySet()) {
+					if (!connectedUsers.contains(userId)) {
 						disconnectedUsers.add(userId);
 					}
 				}
-				for(int userId : disconnectedUsers) {
-					if(mainWindow != null) {
+				for (int userId : disconnectedUsers) {
+					if (mainWindow != null) {
 						mainWindow.removeConnectedUser(this.connectedUsers.get(userId));
 					}
 					this.connectedUsers.remove(userId);
 				}
 			} else if (e.packet instanceof PacketLoginResult) {
-				if(((PacketLoginResult)e.packet).success) {
+				if (((PacketLoginResult) e.packet).success) {
 					conflictingLoginRequests.clear();
 					currentUser = new User(attribuedUserId, askedLogin.pseudo, askedLogin.isExternal, localAddress);
 					state = State.LOGGED;
@@ -545,12 +542,13 @@ public class ClientController implements EventListener {
 					loginWindow.dispose();
 					print("Succesfully connected");
 				} else {
-					loginWindow.showMessage("Le pseudo que vous avez choisi est déja pris, veuillez en choisir un autre.", "Erreur");
+					loginWindow.showMessage(
+							"Le pseudo que vous avez choisi est déja pris, veuillez en choisir un autre.", "Erreur");
 					loginWindow.enableLoginButton();
 					state = State.STARTED;
 					reconnectToLastSessionIfNeeded();
 				}
-			} else if(e.packet instanceof PacketPopup) {
+			} else if (e.packet instanceof PacketPopup) {
 				new Popup();
 			}
 		} else if (event instanceof UDPPacketEvent) {
@@ -570,7 +568,7 @@ public class ClientController implements EventListener {
 	private TCPClient getTCPClientToCentralizedServer() {
 		if (tcpClient == null) {
 			try {
-				tcpClient = new TCPClient(eventQueue, packetFactory, serverAddress, CENTRALIZED_SERVER_PORT);
+				tcpClient = new TCPClient(eventQueue, packetFactory, serverAddress, centralizedServerPort);
 				tcpClient.start();
 			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
@@ -582,7 +580,7 @@ public class ClientController implements EventListener {
 	private TCPServer getTCPServer() {
 		if (tcpServer == null) {
 			try {
-				tcpServer = new TCPServer(eventQueue, packetFactory, SERVER_PORT);
+				tcpServer = new TCPServer(eventQueue, packetFactory, localServerPort);
 				tcpServer.start();
 			} catch (IOException e) {
 				e.printStackTrace();

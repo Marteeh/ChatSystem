@@ -10,11 +10,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
-import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
@@ -30,11 +28,11 @@ import utils.EventQueue;
 public class HideToSystemTray {
 	
 	public static void configureSystemTray(JFrame frame, EventQueue queue, boolean disconnectAction) {
-		Image image = new ImageIcon("icon.png").getImage();
+		Image image = null;
 		try {
-			image = ImageIO.read(new File("icon.png"));
-		} catch (IOException e1) {
-			e1.printStackTrace();
+			image = ImageIO.read( ClassLoader.getSystemResource("image/icon.png"));
+		} catch (IOException e2) {
+			e2.printStackTrace();
 		}
 		System.out.println("creating instance");
 		try {

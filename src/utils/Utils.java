@@ -6,7 +6,7 @@ import java.net.URISyntaxException;
 public class Utils {
 
 	public static final String getRunningirectory() throws URISyntaxException {
-		return new File(Utils.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+		return new File(Utils.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getParentFile().getPath();
 	}
 	
 	public static final String addressToString(byte[] ipAddress) {

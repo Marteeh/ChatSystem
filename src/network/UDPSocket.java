@@ -40,7 +40,7 @@ public class UDPSocket extends Thread {
 				DataInputStream input = new DataInputStream(new ByteArrayInputStream(buffer));
 				Packet packet = packetFactory.createPacket(input.readInt());
 				packet.read(input);
-				eventQueue.addEventToQueue(new UDPPacketEvent(this, p.getAddress().getHostAddress(), packet));
+				eventQueue.addEventToQueue(new UDPPacketEvent(this, packet));
 				input.close();
 			} catch (IOException e) {
 				e.printStackTrace();

@@ -2,7 +2,6 @@ package utils;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.locks.ReentrantLock;
 
 class EventDelayer extends Thread {
 
