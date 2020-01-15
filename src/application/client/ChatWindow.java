@@ -54,6 +54,8 @@ public class ChatWindow extends JFrame {
 		chatScrollPane = new javax.swing.JScrollPane();
 		chatTextArea = new javax.swing.JTextArea();
 
+		javax.swing.JScrollBar vertical = chatScrollPane.getVerticalScrollBar();
+
 		setTitle("ChatSystem Turbo 9000 - [" + currentUser.pseudo + "]");
 		setBackground(new java.awt.Color(0, 0, 0));
 
@@ -89,6 +91,7 @@ public class ChatWindow extends JFrame {
 			public void keyPressed(java.awt.event.KeyEvent evt) {
 				if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
 					sendButtonActionPerformed(null);
+					vertical.setValue( vertical.getMaximum() );
 				}
 			}
 		});
@@ -102,6 +105,7 @@ public class ChatWindow extends JFrame {
 		sendButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				sendButtonActionPerformed(evt);
+				vertical.setValue( vertical.getMaximum() );
 			}
 		});
 
